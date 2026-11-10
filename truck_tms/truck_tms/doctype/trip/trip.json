@@ -16,6 +16,7 @@
   "end_date",
   "status",
   "current_stage",
+  "current_location",
   "company",
   "section_loads",
   "loads",
@@ -117,6 +118,14 @@
    "in_list_view": 1,
    "no_copy": 1,
    "description": "Stage of the first load that is not yet delivered"
+  },
+  {
+   "fieldname": "current_location",
+   "fieldtype": "Link",
+   "label": "Current Location (አሁናዊ ቦታ)",
+   "options": "Transport Location",
+   "in_list_view": 1,
+   "no_copy": 1
   },
   {
    "fieldname": "company",
@@ -263,7 +272,7 @@
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2026-11-10 21:00:00.000000",
+ "modified": "2026-11-10 21:30:00.000000",
  "modified_by": "Administrator",
  "module": "Truck TMS",
  "name": "Trip",

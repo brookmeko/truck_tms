@@ -110,3 +110,41 @@ class IntegrationTestTrip(IntegrationTestCase):
 		trip.loads[1].stage = "At Customs"
 		trip.save()
 		self.assertEqual(trip.current_stage, "At Customs (Return)")
+
+	def test_stage_change_is_logged_with_location(self):
+		trip = self.make_trip()
+		trip.current_location = self.djibouti
+		trip.loads[0].stage = "Delivered"
+		trip.loads[1].stage = "Loading"
+		trip.save()
+		logs = frappe.get_all(
+			"Trip Stage Log", filters={"trip": trip.name}, fields=["leg", "from_stage", "to_stage", "location"]
+		)
+		self.assertEqual(len(logs), 2)
+		loading = next(log for log in logs if log.leg == "Return")
+		self.assertEqual(loading.from_stage, "Assigned")
+		self.assertEqual(loading.to_stage, "Loading")
+		self.assertEqual(loading.location, self.djibouti)
+
+	def test_stage_sets_dates_automatically(self):
+		trip = self.make_trip()
+		trip.loads[1].stage = "At Customs"
+		trip.save()
+		self.assertTrue(trip.loads[1].customs_in_date)
+		trip.loads[1].stage = "Unloading"
+		trip.save()
+		self.assertTrue(trip.loads[1].customs_out_date)
+		self.assertTrue(trip.loads[1].unloading_date)
+
+	def test_daily_truck_report_shows_active_load(self):
+		from truck_tms.truck_tms.report.daily_truck_report.daily_truck_report import execute
+
+		trip = self.make_trip()
+		trip.loads[0].stage = "Delivered"
+		trip.loads[1].stage = "Border Crossing"
+		trip.save()
+		columns, rows = execute({})
+		row = next(r for r in rows if r["vehicle"] == self.truck)
+		self.assertEqual(row["trip"], trip.name)
+		self.assertEqual(row["stage"], "Border Crossing (Return)")
+		self.assertEqual(row["quintals"], 400)

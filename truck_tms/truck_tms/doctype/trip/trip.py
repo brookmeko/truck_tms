@@ -25,6 +25,7 @@ class Trip(Document):
 		self.set_driver_from_assignment()
 		self.validate_dates()
 		self.validate_truck_not_on_another_trip()
+		self.set_stage_dates()
 		self.calculate_load_revenue()
 		self.calculate_costs()
 		self.calculate_summary()
@@ -58,6 +59,60 @@ class Trip(Document):
 		)
 		if other:
 			frappe.throw(_("Truck {0} is already on active trip {1}").format(self.vehicle, other), title=_("Truck busy"))
+
+	# ----- stages ------------------------------------------------------------
+
+	STAGE_DATE_FIELDS = {
+		"Loading": "loading_date",
+		"Border Crossing": "border_crossing_date",
+		"At Customs": "customs_in_date",
+		"Unloading": "unloading_date",
+	}
+	AFTER_CUSTOMS = ("Waiting Unload Place", "Unload Queue", "Unloading", "Delivered")
+
+	def set_stage_dates(self):
+		"""Fill a load's date automatically the first time it reaches a stage."""
+		today = frappe.utils.today()
+		for load in self.loads:
+			field = self.STAGE_DATE_FIELDS.get(load.stage)
+			if field and not load.get(field):
+				load.set(field, today)
+			if load.stage in self.AFTER_CUSTOMS and load.customs_in_date and not load.customs_out_date:
+				load.customs_out_date = today
+
+	def log_stage_changes(self):
+		"""Write a Trip Stage Log row for every stage or location change (rule 9)."""
+		before = self.get_doc_before_save()
+		old_stages = {row.name: row.stage for row in before.loads} if before else {}
+		location_changed = bool(before) and before.current_location != self.current_location
+		logged = False
+
+		for load in self.loads:
+			old = old_stages.get(load.name)
+			if old is None and load.stage == "Assigned":
+				continue  # new row at its starting stage: nothing to log
+			if old != load.stage:
+				self.add_stage_log(load.leg, old, load.stage)
+				logged = True
+
+		if location_changed and not logged:
+			stage = self.current_stage or ""
+			self.add_stage_log("", stage, stage)
+
+	def add_stage_log(self, leg, from_stage, to_stage):
+		frappe.get_doc(
+			{
+				"doctype": "Trip Stage Log",
+				"trip": self.name,
+				"vehicle": self.vehicle,
+				"leg": leg,
+				"from_stage": from_stage,
+				"to_stage": to_stage,
+				"location": self.current_location,
+				"changed_on": frappe.utils.now_datetime(),
+				"changed_by": frappe.session.user,
+			}
+		).insert(ignore_permissions=True)
 
 	# ----- calculations ------------------------------------------------------
 
@@ -96,6 +151,7 @@ class Trip(Document):
 	# ----- truck status ------------------------------------------------------
 
 	def on_update(self):
+		self.log_stage_changes()
 		if self.status == "In Progress":
 			self.set_truck_status("On Trip")
 
