@@ -47,6 +47,26 @@ frappe.ui.form.on("Trip", {
 				__("Billing")
 			);
 		}
+		if (!frm.is_new() && frm.doc.docstatus < 2) {
+			const call = (method, label) =>
+				frappe.call({
+					method: `truck_tms.truck_tms.doctype.trip.accounting.${method}`,
+					args: { trip: frm.doc.name },
+					freeze: true,
+					callback(r) {
+						if (r.message) {
+							frappe.msgprint(__("{0} created as draft: {1}", [label, r.message]));
+							frm.reload_doc();
+						}
+					},
+				});
+			if (!frm.doc.advance_journal_entry && frm.doc.advance_given) {
+				frm.add_custom_button(__("Record Advance Paid"), () => call("make_advance_entry", __("Advance entry")), __("Settlement"));
+			}
+			if (!frm.doc.settlement_journal_entry && frm.doc.receipts_verified) {
+				frm.add_custom_button(__("Create Settlement Entry"), () => call("make_settlement_entry", __("Settlement entry")), __("Settlement"));
+			}
+		}
 		if (frm.doc.docstatus === 0 && frm.doc.driver) {
 			frm.add_custom_button(
 				__("Get Driver Deductions"),

@@ -38,6 +38,12 @@
   "column_break_settlement",
   "refund_to_driver",
   "refund_to_office",
+  "section_accounting",
+  "receipts_verified",
+  "receipts_verified_by",
+  "column_break_accounting",
+  "advance_journal_entry",
+  "settlement_journal_entry",
   "section_summary",
   "total_revenue",
   "column_break_summary",
@@ -250,6 +256,50 @@
    "read_only": 1
   },
   {
+   "fieldname": "section_accounting",
+   "fieldtype": "Section Break",
+   "label": "Accounting"
+  },
+  {
+   "fieldname": "receipts_verified",
+   "fieldtype": "Check",
+   "label": "Receipts Checked by Accountant",
+   "allow_on_submit": 1,
+   "no_copy": 1,
+   "description": "Tick after checking the driver's fuel and road receipts. Required before the settlement entry."
+  },
+  {
+   "fieldname": "receipts_verified_by",
+   "fieldtype": "Link",
+   "label": "Checked By",
+   "options": "User",
+   "read_only": 1,
+   "allow_on_submit": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "column_break_accounting",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "advance_journal_entry",
+   "fieldtype": "Link",
+   "label": "Advance Entry",
+   "options": "Journal Entry",
+   "read_only": 1,
+   "no_copy": 1,
+   "allow_on_submit": 1
+  },
+  {
+   "fieldname": "settlement_journal_entry",
+   "fieldtype": "Link",
+   "label": "Settlement Entry",
+   "options": "Journal Entry",
+   "read_only": 1,
+   "no_copy": 1,
+   "allow_on_submit": 1
+  },
+  {
    "fieldname": "section_summary",
    "fieldtype": "Section Break",
    "label": "Summary"
@@ -293,7 +343,7 @@
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2026-11-10 23:00:00.000000",
+ "modified": "2026-11-10 23:30:00.000000",
  "modified_by": "Administrator",
  "module": "Truck TMS",
  "name": "Trip",

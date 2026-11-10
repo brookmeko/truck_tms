@@ -11,7 +11,7 @@ from truck_tms.truck_tms.doctype.vehicle_driver_assignment.test_vehicle_driver_a
 )
 
 EXTRA_TEST_RECORD_DEPENDENCIES = []
-IGNORE_TEST_RECORD_DEPENDENCIES = ["Vehicle", "Driver", "Customer", "Company", "Sales Invoice", "Item", "Cost Center"]
+IGNORE_TEST_RECORD_DEPENDENCIES = ["Vehicle", "Driver", "Customer", "Company", "Sales Invoice", "Item", "Cost Center", "Journal Entry", "Account"]
 
 
 def make_location(name, location_type):
@@ -179,6 +179,35 @@ class IntegrationTestTrip(IntegrationTestCase):
 		# Running again does not create duplicates
 		self.assertEqual(make_sales_invoices(trip.name), [])
 
+	def test_advance_and_settlement_entries(self):
+		from truck_tms.truck_tms.doctype.trip.accounting import make_advance_entry, make_settlement_entry
+
+		s = setup_transport_accounts()
+		trip = self.make_trip()
+
+		adv = frappe.get_doc("Journal Entry", make_advance_entry(trip.name))
+		self.assertEqual(adv.docstatus, 0)  # draft for the accountant
+		lines = {(a.account, a.debit, a.credit) for a in adv.accounts}
+		self.assertEqual(lines, {(s.driver_advance_account, 118000, 0), (s.bank_account, 0, 118000)})
+
+		# Settlement is blocked until receipts are checked
+		with self.assertRaises(frappe.ValidationError):
+			make_settlement_entry(trip.name)
+		trip.reload()
+		trip.receipts_verified = 1
+		trip.save()
+		self.assertEqual(trip.receipts_verified_by, frappe.session.user)
+
+		je = frappe.get_doc("Journal Entry", make_settlement_entry(trip.name))
+		debit = {a.account: a.debit for a in je.accounts if a.debit}
+		credit = {a.account: a.credit for a in je.accounts if a.credit}
+		self.assertEqual(debit[s.fuel_expense_account], 77440)
+		self.assertEqual(debit[s.road_expense_account], 26220)
+		self.assertEqual(debit[s.allowance_expense_account], 18000)
+		self.assertEqual(credit[s.driver_advance_account], 118000)  # advance cleared
+		self.assertEqual(credit[s.bank_account], 3660)  # bank refunds the driver
+		self.assertEqual(je.total_debit, je.total_credit)
+
 
 def make_customer(name):
 	if not frappe.db.exists("Customer", name):
@@ -191,3 +220,16 @@ def make_customer(name):
 			}
 		).insert()
 	return name
+
+
+def setup_transport_accounts():
+	"""Default accounts + a test bank account in Transport Settings."""
+	from truck_tms.setup.accounts import ensure_transport_accounts, get_or_create_account
+
+	ensure_transport_accounts()
+	settings = frappe.get_single("Transport Settings")
+	if not settings.bank_account:
+		company = frappe.db.get_value("Company", {}, "name")
+		settings.bank_account = get_or_create_account(company, "Test Bank", "Asset", "Bank", "Bank Accounts")
+		settings.save()
+	return settings

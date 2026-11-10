@@ -8,7 +8,7 @@ from frappe.tests import IntegrationTestCase
 from truck_tms.truck_tms.doctype.trip import test_trip as trip_tests
 
 EXTRA_TEST_RECORD_DEPENDENCIES = []
-IGNORE_TEST_RECORD_DEPENDENCIES = ["Vehicle", "Driver", "Customer", "Company", "Sales Invoice", "Item", "Cost Center", "Trip"]
+IGNORE_TEST_RECORD_DEPENDENCIES = ["Vehicle", "Driver", "Customer", "Company", "Sales Invoice", "Item", "Cost Center", "Trip", "Journal Entry", "Account"]
 
 
 class IntegrationTestDriverDeduction(IntegrationTestCase):
@@ -73,3 +73,19 @@ class IntegrationTestDriverDeduction(IntegrationTestCase):
 		trip.append("deductions", {"driver_deduction": ded.name, "amount": 5000})
 		with self.assertRaises(frappe.ValidationError):
 			trip.save()
+
+	def test_settlement_entry_with_deduction(self):
+		from truck_tms.truck_tms.doctype.trip.accounting import make_settlement_entry
+
+		s = trip_tests.setup_transport_accounts()
+		ded = self.make_deduction(10000, 2)
+		trip = self.make_trip()
+		trip.append("deductions", {"driver_deduction": ded.name, "amount": 5000})
+		trip.receipts_verified = 1
+		trip.save()
+		je = frappe.get_doc("Journal Entry", make_settlement_entry(trip.name))
+		credit = {a.account: a.credit for a in je.accounts if a.credit}
+		debit = {a.account: a.debit for a in je.accounts if a.debit}
+		self.assertEqual(credit[s.deduction_income_account], 5000)
+		self.assertEqual(debit[s.bank_account], 1340)  # driver returns 1,340 to the bank
+		self.assertEqual(je.total_debit, je.total_credit)

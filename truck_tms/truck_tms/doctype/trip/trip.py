@@ -31,6 +31,13 @@ class Trip(Document):
 		self.calculate_costs()
 		self.calculate_summary()
 		self.set_current_stage()
+		self.set_receipts_verified_by()
+
+	def before_update_after_submit(self):
+		self.set_receipts_verified_by()
+
+	def set_receipts_verified_by(self):
+		self.receipts_verified_by = (self.receipts_verified_by or frappe.session.user) if self.receipts_verified else None
 
 	# ----- defaults & checks -------------------------------------------------
 

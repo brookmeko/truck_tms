@@ -1,0 +1,124 @@
+{
+ "actions": [],
+ "creation": "2026-11-10 23:30:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "company",
+  "section_bank",
+  "bank_account",
+  "driver_advance_account",
+  "section_expenses",
+  "fuel_expense_account",
+  "road_expense_account",
+  "allowance_expense_account",
+  "section_income",
+  "deduction_income_account"
+ ],
+ "fields": [
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company"
+  },
+  {
+   "fieldname": "section_bank",
+   "fieldtype": "Section Break",
+   "label": "Driver Money"
+  },
+  {
+   "fieldname": "bank_account",
+   "fieldtype": "Link",
+   "label": "Bank Account",
+   "options": "Account",
+   "description": "The bank account that pays driver advances and refunds"
+  },
+  {
+   "fieldname": "driver_advance_account",
+   "fieldtype": "Link",
+   "label": "Driver Advances Account",
+   "options": "Account",
+   "description": "Asset account holding money given to drivers until receipts are settled"
+  },
+  {
+   "fieldname": "section_expenses",
+   "fieldtype": "Section Break",
+   "label": "Trip Expense Accounts",
+   "description": "Use the same account in all three if the accountant wants one Trip Expenses account"
+  },
+  {
+   "fieldname": "fuel_expense_account",
+   "fieldtype": "Link",
+   "label": "Fuel Expense Account",
+   "options": "Account",
+   "description": ""
+  },
+  {
+   "fieldname": "road_expense_account",
+   "fieldtype": "Link",
+   "label": "Road Expenses Account",
+   "options": "Account",
+   "description": ""
+  },
+  {
+   "fieldname": "allowance_expense_account",
+   "fieldtype": "Link",
+   "label": "Driver Allowance Account",
+   "options": "Account",
+   "description": ""
+  },
+  {
+   "fieldname": "section_income",
+   "fieldtype": "Section Break",
+   "label": "Recoveries"
+  },
+  {
+   "fieldname": "deduction_income_account",
+   "fieldtype": "Link",
+   "label": "Driver Deductions Account",
+   "options": "Account",
+   "description": "Income/recovery account credited when shortages etc. are deducted from a driver"
+  }
+ ],
+ "issingle": 1,
+ "links": [],
+ "modified": "2026-11-10 23:30:00.000000",
+ "modified_by": "Administrator",
+ "module": "Truck TMS",
+ "name": "Transport Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "email": 1,
+   "print": 1,
+   "share": 1
+  },
+  {
+   "role": "Transport Finance",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "email": 1,
+   "print": 1,
+   "share": 1
+  },
+  {
+   "role": "Transport Manager",
+   "read": 1,
+   "write": 0,
+   "create": 0,
+   "email": 1,
+   "print": 1,
+   "share": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

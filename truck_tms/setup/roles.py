@@ -34,12 +34,17 @@ STANDARD_DOCTYPE_PERMS = {
 }
 
 
-def setup_roles():
+def create_roles():
+	"""Runs BEFORE migrate too, because our DocType permissions refer to these roles."""
 	for role, description in ROLES.items():
 		if not frappe.db.exists("Role", role):
 			frappe.get_doc(
 				{"doctype": "Role", "role_name": role, "desk_access": 1, "description": description}
 			).insert(ignore_permissions=True)
+
+
+def setup_roles():
+	create_roles()
 
 	for profile, roles in ROLE_PROFILES.items():
 		roles = [r for r in roles if frappe.db.exists("Role", r)]

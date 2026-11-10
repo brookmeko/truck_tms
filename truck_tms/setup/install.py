@@ -94,16 +94,20 @@ def setup_custom_fields():
 def after_install():
 	setup_custom_fields()
 	from truck_tms.setup.roles import setup_roles
+	from truck_tms.setup.accounts import ensure_transport_accounts
 
 	setup_roles()
+	ensure_transport_accounts()
 
 
 def after_migrate():
 	setup_custom_fields()
 	ensure_erpnext_contact_fields()
 	from truck_tms.setup.roles import setup_roles
+	from truck_tms.setup.accounts import ensure_transport_accounts
 
 	setup_roles()
+	ensure_transport_accounts()
 	from truck_tms.setup.vehicle import ensure_vehicle_cost_centers
 
 	ensure_vehicle_cost_centers()
