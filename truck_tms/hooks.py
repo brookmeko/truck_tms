@@ -97,6 +97,8 @@ app_license = "mit"
 
 # before_install = "truck_tms.install.before_install"
 # after_install = "truck_tms.install.after_install"
+after_install = "truck_tms.setup.install.after_install"
+after_migrate = "truck_tms.setup.install.after_migrate"
 
 # Uninstallation
 # ------------
