@@ -1,0 +1,366 @@
+{
+ "creation": "2026-11-11 01:00:00.000000",
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "modified": "2026-11-11 01:00:00.000000",
+ "modified_by": "Administrator",
+ "owner": "Administrator",
+ "name": "Truck TMS",
+ "idx": 0,
+ "label": "Truck TMS",
+ "title": "Truck TMS",
+ "module": "Truck TMS",
+ "app": "truck_tms",
+ "icon": "truck",
+ "public": 1,
+ "is_hidden": 0,
+ "hide_custom": 0,
+ "standard": 1,
+ "type": "Workspace",
+ "sequence_id": 1.0,
+ "for_user": "",
+ "parent_page": "",
+ "restrict_to_domain": "",
+ "content": "[{\"id\": \"tmshdr0001\", \"type\": \"header\", \"data\": {\"text\": \"<span class=\\\"h4\\\"><b>Today</b></span>\", \"col\": 12}}, {\"id\": \"tmscard000\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"Active Trips\", \"col\": 4}}, {\"id\": \"tmscard001\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"Trucks Available\", \"col\": 4}}, {\"id\": \"tmscard002\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"Revenue This Month\", \"col\": 4}}, {\"id\": \"tmscard003\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"Net Income This Month\", \"col\": 4}}, {\"id\": \"tmscard004\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"Customer Outstanding\", \"col\": 4}}, {\"id\": \"tmschart01\", \"type\": \"chart\", \"data\": {\"chart_name\": \"Net Income by Truck\", \"col\": 12}}, {\"id\": \"tmshdr0002\", \"type\": \"header\", \"data\": {\"text\": \"<span class=\\\"h4\\\"><b>Quick Access</b></span>\", \"col\": 12}}, {\"id\": \"tmssc0000\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Operations Board\", \"col\": 3}}, {\"id\": \"tmssc0001\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"New Trip\", \"col\": 3}}, {\"id\": \"tmssc0002\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Daily Truck Report\", \"col\": 3}}, {\"id\": \"tmssc0003\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Trip Profitability\", \"col\": 3}}]",
+ "shortcuts": [
+  {
+   "type": "DocType",
+   "link_to": "Trip",
+   "label": "Operations Board",
+   "doc_view": "Kanban",
+   "kanban_board": "Operations Board",
+   "color": "Blue"
+  },
+  {
+   "type": "DocType",
+   "link_to": "Trip",
+   "label": "New Trip",
+   "doc_view": "New",
+   "color": "Green"
+  },
+  {
+   "type": "Report",
+   "link_to": "Daily Truck Report",
+   "label": "Daily Truck Report",
+   "report_ref_doctype": "Trip",
+   "color": "Orange"
+  },
+  {
+   "type": "Report",
+   "link_to": "Trip Profitability",
+   "label": "Trip Profitability",
+   "report_ref_doctype": "Trip",
+   "color": "Purple"
+  }
+ ],
+ "number_cards": [
+  {
+   "number_card_name": "Active Trips",
+   "label": "Active Trips"
+  },
+  {
+   "number_card_name": "Trucks Available",
+   "label": "Trucks Available"
+  },
+  {
+   "number_card_name": "Revenue This Month",
+   "label": "Revenue This Month"
+  },
+  {
+   "number_card_name": "Net Income This Month",
+   "label": "Net Income This Month"
+  },
+  {
+   "number_card_name": "Customer Outstanding",
+   "label": "Customer Outstanding"
+  }
+ ],
+ "charts": [
+  {
+   "chart_name": "Net Income by Truck",
+   "label": "Net Income by Truck"
+  }
+ ],
+ "links": [],
+ "quick_lists": [],
+ "custom_blocks": [],
+ "roles": [],
+ "sidebar_items": [
+  {
+   "type": "Link",
+   "label": "Home",
+   "child": 0,
+   "indent": 0,
+   "collapsible": 1,
+   "keep_closed": 0,
+   "show_arrow": 0,
+   "open_in_new_tab": 0,
+   "link_type": "Workspace",
+   "link_to": "Truck TMS",
+   "icon": "house"
+  },
+  {
+   "type": "Link",
+   "label": "Operations Board",
+   "child": 0,
+   "indent": 0,
+   "collapsible": 1,
+   "keep_closed": 0,
+   "show_arrow": 0,
+   "open_in_new_tab": 0,
+   "link_type": "URL",
+   "icon": "square-kanban",
+   "url": "/desk/trip/view/kanban/Operations Board"
+  },
+  {
+   "type": "Link",
+   "label": "Trip",
+   "child": 0,
+   "indent": 0,
+   "collapsible": 1,
+   "keep_closed": 0,
+   "show_arrow": 0,
+   "open_in_new_tab": 0,
+   "link_type": "DocType",
+   "link_to": "Trip",
+   "icon": "truck"
+  },
+  {
+   "type": "Link",
+   "label": "Daily Truck Report",
+   "child": 0,
+   "indent": 0,
+   "collapsible": 1,
+   "keep_closed": 0,
+   "show_arrow": 0,
+   "open_in_new_tab": 0,
+   "link_type": "Report",
+   "link_to": "Daily Truck Report",
+   "icon": "clipboard-list"
+  },
+  {
+   "type": "Section Break",
+   "label": "Masters",
+   "child": 0,
+   "indent": 1,
+   "collapsible": 1,
+   "keep_closed": 0,
+   "show_arrow": 0,
+   "open_in_new_tab": 0,
+   "icon": "database"
+  },
+  {
+   "type": "Link",
+   "label": "Vehicle",
+   "child": 1,
+   "indent": 0,
+   "collapsible": 1,
+   "keep_closed": 0,
+   "show_arrow": 0,
+   "open_in_new_tab": 0,
+   "link_type": "DocType",
+   "link_to": "Vehicle"
+  },
+  {
+   "type": "Link",
+   "label": "Driver",
+   "child": 1,
+   "indent": 0,
+   "collapsible": 1,
+   "keep_closed": 0,
+   "show_arrow": 0,
+   "open_in_new_tab": 0,
+   "link_type": "DocType",
+   "link_to": "Driver"
+  },
+  {
+   "type": "Link",
+   "label": "Vehicle Driver Assignment",
+   "child": 1,
+   "indent": 0,
+   "collapsible": 1,
+   "keep_closed": 0,
+   "show_arrow": 0,
+   "open_in_new_tab": 0,
+   "link_type": "DocType",
+   "link_to": "Vehicle Driver Assignment"
+  },
+  {
+   "type": "Link",
+   "label": "Customer",
+   "child": 1,
+   "indent": 0,
+   "collapsible": 1,
+   "keep_closed": 0,
+   "show_arrow": 0,
+   "open_in_new_tab": 0,
+   "link_type": "DocType",
+   "link_to": "Customer"
+  },
+  {
+   "type": "Link",
+   "label": "Transport Location",
+   "child": 1,
+   "indent": 0,
+   "collapsible": 1,
+   "keep_closed": 0,
+   "show_arrow": 0,
+   "open_in_new_tab": 0,
+   "link_type": "DocType",
+   "link_to": "Transport Location"
+  },
+  {
+   "type": "Link",
+   "label": "Cargo Type",
+   "child": 1,
+   "indent": 0,
+   "collapsible": 1,
+   "keep_closed": 0,
+   "show_arrow": 0,
+   "open_in_new_tab": 0,
+   "link_type": "DocType",
+   "link_to": "Cargo Type"
+  },
+  {
+   "type": "Section Break",
+   "label": "Finance",
+   "child": 0,
+   "indent": 1,
+   "collapsible": 1,
+   "keep_closed": 0,
+   "show_arrow": 0,
+   "open_in_new_tab": 0,
+   "icon": "banknote"
+  },
+  {
+   "type": "Link",
+   "label": "Sales Invoice",
+   "child": 1,
+   "indent": 0,
+   "collapsible": 1,
+   "keep_closed": 0,
+   "show_arrow": 0,
+   "open_in_new_tab": 0,
+   "link_type": "DocType",
+   "link_to": "Sales Invoice"
+  },
+  {
+   "type": "Link",
+   "label": "Payment Entry",
+   "child": 1,
+   "indent": 0,
+   "collapsible": 1,
+   "keep_closed": 0,
+   "show_arrow": 0,
+   "open_in_new_tab": 0,
+   "link_type": "DocType",
+   "link_to": "Payment Entry"
+  },
+  {
+   "type": "Link",
+   "label": "Driver Deduction",
+   "child": 1,
+   "indent": 0,
+   "collapsible": 1,
+   "keep_closed": 0,
+   "show_arrow": 0,
+   "open_in_new_tab": 0,
+   "link_type": "DocType",
+   "link_to": "Driver Deduction"
+  },
+  {
+   "type": "Link",
+   "label": "Accounts Receivable",
+   "child": 1,
+   "indent": 0,
+   "collapsible": 1,
+   "keep_closed": 0,
+   "show_arrow": 0,
+   "open_in_new_tab": 0,
+   "link_type": "Report",
+   "link_to": "Accounts Receivable"
+  },
+  {
+   "type": "Section Break",
+   "label": "Reports",
+   "child": 0,
+   "indent": 1,
+   "collapsible": 1,
+   "keep_closed": 0,
+   "show_arrow": 0,
+   "open_in_new_tab": 0,
+   "icon": "sheet"
+  },
+  {
+   "type": "Link",
+   "label": "Trip Profitability",
+   "child": 1,
+   "indent": 0,
+   "collapsible": 1,
+   "keep_closed": 0,
+   "show_arrow": 0,
+   "open_in_new_tab": 0,
+   "link_type": "Report",
+   "link_to": "Trip Profitability"
+  },
+  {
+   "type": "Link",
+   "label": "Truck Profit by Month",
+   "child": 1,
+   "indent": 0,
+   "collapsible": 1,
+   "keep_closed": 0,
+   "show_arrow": 0,
+   "open_in_new_tab": 0,
+   "link_type": "Report",
+   "link_to": "Truck Profit by Month"
+  },
+  {
+   "type": "Link",
+   "label": "Driver Settlement Summary",
+   "child": 1,
+   "indent": 0,
+   "collapsible": 1,
+   "keep_closed": 0,
+   "show_arrow": 0,
+   "open_in_new_tab": 0,
+   "link_type": "Report",
+   "link_to": "Driver Settlement Summary"
+  },
+  {
+   "type": "Link",
+   "label": "Trip Stage Log",
+   "child": 1,
+   "indent": 0,
+   "collapsible": 1,
+   "keep_closed": 0,
+   "show_arrow": 0,
+   "open_in_new_tab": 0,
+   "link_type": "DocType",
+   "link_to": "Trip Stage Log"
+  },
+  {
+   "type": "Section Break",
+   "label": "Settings",
+   "child": 0,
+   "indent": 1,
+   "collapsible": 1,
+   "keep_closed": 0,
+   "show_arrow": 0,
+   "open_in_new_tab": 0,
+   "icon": "settings"
+  },
+  {
+   "type": "Link",
+   "label": "Transport Settings",
+   "child": 1,
+   "indent": 0,
+   "collapsible": 1,
+   "keep_closed": 0,
+   "show_arrow": 0,
+   "open_in_new_tab": 0,
+   "link_type": "DocType",
+   "link_to": "Transport Settings"
+  }
+ ]
+}

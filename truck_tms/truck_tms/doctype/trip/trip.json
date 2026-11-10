@@ -15,6 +15,7 @@
   "start_date",
   "end_date",
   "status",
+  "board_column",
   "current_stage",
   "current_location",
   "company",
@@ -118,6 +119,16 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "no_copy": 1
+  },
+  {
+   "fieldname": "board_column",
+   "fieldtype": "Select",
+   "label": "Board Column",
+   "options": "Assigned\nLoading\nIn Transit\nBorder & Customs\nUnloading\nSettlement",
+   "default": "Assigned",
+   "in_standard_filter": 1,
+   "no_copy": 1,
+   "description": "Set automatically from the loads. Dragging a card on the Operations Board moves the active load."
   },
   {
    "fieldname": "current_stage",
@@ -343,7 +354,7 @@
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2026-11-10 23:30:00.000000",
+ "modified": "2026-11-11 00:30:00.000000",
  "modified_by": "Administrator",
  "module": "Truck TMS",
  "name": "Trip",

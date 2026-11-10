@@ -1,0 +1,163 @@
+{
+ "creation": "2026-11-11 01:00:00.000000",
+ "docstatus": 0,
+ "doctype": "Kanban Board",
+ "modified": "2026-11-11 01:00:00.000000",
+ "modified_by": "Administrator",
+ "owner": "Administrator",
+ "name": "Operations Board",
+ "idx": 0,
+ "kanban_board_name": "Operations Board",
+ "reference_doctype": "Trip",
+ "field_name": "board_column",
+ "module": "Truck TMS",
+ "is_standard": "Yes",
+ "private": 0,
+ "use_kanban_v2": 1,
+ "show_labels": 1,
+ "show_assigned_to": 0,
+ "show_tags_on_card": 0,
+ "title_field": "vehicle",
+ "footer_date_field": "Modified",
+ "filters": "[[\"Trip\", \"docstatus\", \"=\", 0]]",
+ "columns": [
+  {
+   "docstatus": 0,
+   "idx": 1,
+   "parent": "Operations Board",
+   "parenttype": "Kanban Board",
+   "parentfield": "columns",
+   "doctype": "Kanban Board Column",
+   "column_name": "Assigned",
+   "indicator": "Gray",
+   "status": "Active"
+  },
+  {
+   "docstatus": 0,
+   "idx": 2,
+   "parent": "Operations Board",
+   "parenttype": "Kanban Board",
+   "parentfield": "columns",
+   "doctype": "Kanban Board Column",
+   "column_name": "Loading",
+   "indicator": "Blue",
+   "status": "Active"
+  },
+  {
+   "docstatus": 0,
+   "idx": 3,
+   "parent": "Operations Board",
+   "parenttype": "Kanban Board",
+   "parentfield": "columns",
+   "doctype": "Kanban Board Column",
+   "column_name": "In Transit",
+   "indicator": "Cyan",
+   "status": "Active"
+  },
+  {
+   "docstatus": 0,
+   "idx": 4,
+   "parent": "Operations Board",
+   "parenttype": "Kanban Board",
+   "parentfield": "columns",
+   "doctype": "Kanban Board Column",
+   "column_name": "Border & Customs",
+   "indicator": "Orange",
+   "status": "Active"
+  },
+  {
+   "docstatus": 0,
+   "idx": 5,
+   "parent": "Operations Board",
+   "parenttype": "Kanban Board",
+   "parentfield": "columns",
+   "doctype": "Kanban Board Column",
+   "column_name": "Unloading",
+   "indicator": "Purple",
+   "status": "Active"
+  },
+  {
+   "docstatus": 0,
+   "idx": 6,
+   "parent": "Operations Board",
+   "parenttype": "Kanban Board",
+   "parentfield": "columns",
+   "doctype": "Kanban Board Column",
+   "column_name": "Settlement",
+   "indicator": "Green",
+   "status": "Active"
+  }
+ ],
+ "card_fields": [
+  {
+   "docstatus": 0,
+   "idx": 1,
+   "parent": "Operations Board",
+   "parenttype": "Kanban Board",
+   "parentfield": "card_fields",
+   "doctype": "Kanban Board Field",
+   "fieldname": "driver_name",
+   "icon": "user"
+  },
+  {
+   "docstatus": 0,
+   "idx": 2,
+   "parent": "Operations Board",
+   "parenttype": "Kanban Board",
+   "parentfield": "card_fields",
+   "doctype": "Kanban Board Field",
+   "fieldname": "current_stage",
+   "icon": "milestone"
+  },
+  {
+   "docstatus": 0,
+   "idx": 3,
+   "parent": "Operations Board",
+   "parenttype": "Kanban Board",
+   "parentfield": "card_fields",
+   "doctype": "Kanban Board Field",
+   "fieldname": "current_location",
+   "icon": "map-pin"
+  },
+  {
+   "docstatus": 0,
+   "idx": 4,
+   "parent": "Operations Board",
+   "parenttype": "Kanban Board",
+   "parentfield": "card_fields",
+   "doctype": "Kanban Board Field",
+   "fieldname": "start_date",
+   "icon": "calendar"
+  }
+ ],
+ "preview_fields": [
+  {
+   "docstatus": 0,
+   "idx": 1,
+   "parent": "Operations Board",
+   "parenttype": "Kanban Board",
+   "parentfield": "preview_fields",
+   "doctype": "Kanban Board Field",
+   "fieldname": "trailer_plate"
+  },
+  {
+   "docstatus": 0,
+   "idx": 2,
+   "parent": "Operations Board",
+   "parenttype": "Kanban Board",
+   "parentfield": "preview_fields",
+   "doctype": "Kanban Board Field",
+   "fieldname": "status"
+  },
+  {
+   "docstatus": 0,
+   "idx": 3,
+   "parent": "Operations Board",
+   "parenttype": "Kanban Board",
+   "parentfield": "preview_fields",
+   "doctype": "Kanban Board Field",
+   "fieldname": "total_revenue"
+  }
+ ],
+ "group_by_fields": []
+}

@@ -269,3 +269,76 @@ class IntegrationTestReports(IntegrationTestCase):
 		columns, rows = execute({"driver": self.driver})
 		self.assertEqual(rows[0].refund_to_driver, 3660)
 		self.assertEqual(rows[0].unsettled, 1)
+
+
+class IntegrationTestBoardAPI(IntegrationTestCase):
+	"""API used by the frontend board."""
+
+	setUp = IntegrationTestTrip.setUp
+	tearDown = IntegrationTestTrip.tearDown
+	make_trip = IntegrationTestTrip.make_trip
+
+	def test_board_places_trip_in_column_of_active_load(self):
+		from truck_tms.api import get_board
+
+		trip = self.make_trip()
+		trip.loads[0].stage = "Delivered"
+		trip.loads[1].stage = "At Customs"
+		trip.save()
+		card = next(c for c in get_board()["cards"] if c["name"] == trip.name)
+		self.assertEqual(card["column"], "customs")
+		self.assertEqual(card["stage"], "At Customs")
+
+	def test_set_load_stage_moves_trip_and_logs(self):
+		from truck_tms.api import set_load_stage
+
+		trip = self.make_trip()
+		result = set_load_stage(trip.name, trip.loads[0].name, "In Transit", self.djibouti)
+		trip.reload()
+		self.assertEqual(trip.status, "In Progress")
+		self.assertEqual(trip.current_location, self.djibouti)
+		self.assertEqual(result["current_stage"], "In Transit (Outbound)")
+		self.assertTrue(frappe.db.exists("Trip Stage Log", {"trip": trip.name, "to_stage": "In Transit"}))
+
+	def test_set_load_stage_rejects_unknown_stage(self):
+		from truck_tms.api import set_load_stage
+
+		trip = self.make_trip()
+		with self.assertRaises(frappe.ValidationError):
+			set_load_stage(trip.name, trip.loads[0].name, "Flying")
+
+	def test_dashboard_numbers(self):
+		from truck_tms.api import get_dashboard
+
+		self.make_trip()
+		data = get_dashboard()
+		self.assertGreaterEqual(data["active_trips"], 1)
+		self.assertIn("trucks_by_status", data)
+
+
+class IntegrationTestOperationsBoard(IntegrationTestCase):
+	"""Kanban board column on the Trip."""
+
+	setUp = IntegrationTestTrip.setUp
+	tearDown = IntegrationTestTrip.tearDown
+	make_trip = IntegrationTestTrip.make_trip
+
+	def test_board_column_follows_active_load(self):
+		trip = self.make_trip()
+		self.assertEqual(trip.board_column, "Assigned")
+		trip.loads[0].stage = "Delivered"
+		trip.loads[1].stage = "At Customs"
+		trip.save()
+		self.assertEqual(trip.board_column, "Border & Customs")
+		trip.loads[1].stage = "Delivered"
+		trip.save()
+		self.assertEqual(trip.board_column, "Settlement")
+
+	def test_dragging_card_moves_active_load(self):
+		trip = self.make_trip()
+		# What the Kanban view does when a card is dragged to "In Transit"
+		trip.board_column = "In Transit"
+		trip.save()
+		self.assertEqual(trip.loads[0].stage, "In Transit")
+		self.assertEqual(trip.board_column, "In Transit")
+		self.assertEqual(trip.current_stage, "In Transit (Outbound)")

@@ -6,6 +6,7 @@ from frappe import _
 from frappe.model.document import Document
 from frappe.utils import flt, getdate
 
+from truck_tms.truck_tms.doctype.trip.board import LABEL_TO_COLUMN, STAGE_TO_LABEL
 from truck_tms.truck_tms.doctype.vehicle_driver_assignment.vehicle_driver_assignment import (
 	get_current_driver,
 )
@@ -24,6 +25,7 @@ class Trip(Document):
 	def validate(self):
 		self.set_driver_from_assignment()
 		self.validate_dates()
+		self.apply_board_column_change()
 		self.validate_truck_not_on_another_trip()
 		self.set_stage_dates()
 		self.calculate_load_revenue()
@@ -31,6 +33,7 @@ class Trip(Document):
 		self.calculate_costs()
 		self.calculate_summary()
 		self.set_current_stage()
+		self.set_board_column()
 		self.set_receipts_verified_by()
 
 	def before_update_after_submit(self):
@@ -181,6 +184,21 @@ class Trip(Document):
 	def calculate_summary(self):
 		self.total_revenue = sum(flt(load.revenue) for load in self.loads)
 		self.net_income = flt(self.total_revenue) - flt(self.total_cost)
+
+	def apply_board_column_change(self):
+		"""Card dragged to another column on the Operations Board:
+		move the active load to the first stage of that column (Settlement = Delivered)."""
+		before = self.get_doc_before_save()
+		if not before or not self.board_column or before.board_column == self.board_column:
+			return
+		active = next((load for load in self.loads if load.stage != "Delivered"), None)
+		column = LABEL_TO_COLUMN.get(self.board_column)
+		if active and column:
+			active.stage = column["stages"][0]
+
+	def set_board_column(self):
+		active = next((load for load in self.loads if load.stage != "Delivered"), None)
+		self.board_column = STAGE_TO_LABEL.get(active.stage, "Assigned") if active else "Settlement"
 
 	def set_current_stage(self):
 		pending = [load for load in self.loads if load.stage != "Delivered"]

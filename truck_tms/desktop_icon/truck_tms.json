@@ -1,0 +1,20 @@
+{
+ "creation": "2026-11-11 01:00:00.000000",
+ "docstatus": 0,
+ "doctype": "Desktop Icon",
+ "modified": "2026-11-11 01:00:00.000000",
+ "modified_by": "Administrator",
+ "owner": "Administrator",
+ "name": "Truck TMS",
+ "idx": 1,
+ "app": "truck_tms",
+ "label": "Truck TMS",
+ "icon": "truck",
+ "icon_type": "Link",
+ "link_to": "Truck TMS",
+ "link_type": "Workspace Sidebar",
+ "hidden": 0,
+ "restrict_removal": 0,
+ "roles": [],
+ "standard": 1
+}
