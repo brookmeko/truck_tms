@@ -1,0 +1,112 @@
+# Copyright (c) 2026, Biruk and Contributors
+# See license.txt
+
+import frappe
+from frappe.tests import IntegrationTestCase
+
+from truck_tms.truck_tms.doctype.vehicle_driver_assignment.test_vehicle_driver_assignment import (
+	assign,
+	make_driver,
+	make_vehicle,
+)
+
+EXTRA_TEST_RECORD_DEPENDENCIES = []
+IGNORE_TEST_RECORD_DEPENDENCIES = ["Vehicle", "Driver", "Customer", "Company"]
+
+
+def make_location(name, location_type):
+	if not frappe.db.exists("Transport Location", name):
+		frappe.get_doc(
+			{"doctype": "Transport Location", "location_name": name, "location_type": location_type}
+		).insert()
+	return name
+
+
+def make_cargo(name, empty=0):
+	if not frappe.db.exists("Cargo Type", name):
+		frappe.get_doc({"doctype": "Cargo Type", "cargo_type_name": name, "is_empty_run": empty}).insert()
+	return name
+
+
+class IntegrationTestTrip(IntegrationTestCase):
+	def setUp(self):
+		self.truck = make_vehicle("TEST-TRUCK-T")
+		self.driver = make_driver("Test Trip Driver")
+		frappe.db.delete("Trip", {"vehicle": self.truck})
+		frappe.db.delete("Vehicle Driver Assignment", {"vehicle": self.truck})
+		frappe.db.delete("Vehicle Driver Assignment", {"driver": self.driver})
+		assign(self.truck, self.driver, "2026-01-01 08:00:00")
+		self.addis = make_location("Test Addis", "City")
+		self.djibouti = make_location("Test Djibouti", "Port")
+		self.empty = make_cargo("Test Empty", empty=1)
+		self.raw = make_cargo("Test Raw Material")
+		self.company = frappe.db.get_value("Company", {}, "name")
+
+	def tearDown(self):
+		frappe.db.rollback()
+
+	def make_trip(self, **extra):
+		trip = frappe.get_doc(
+			{
+				"doctype": "Trip",
+				"vehicle": self.truck,
+				"company": self.company,
+				"start_date": "2026-03-01",
+				"loads": [
+					{"leg": "Outbound", "origin": self.addis, "destination": self.djibouti, "cargo_type": self.empty},
+					{
+						"leg": "Return",
+						"origin": self.djibouti,
+						"destination": self.addis,
+						"cargo_type": self.raw,
+						"quintals": 400,
+						"tariff_per_quintal": 740,
+						"demurrage_days": 6,
+						"demurrage_rate": 3000,
+					},
+				],
+				# Real row from the April 2016 E.C. settlement sheet (Seid Awel, 3-A17484)
+				"fuel_litres": 1000,
+				"fuel_cost": 77440,
+				"road_expenses": 26220,
+				"allowance_base": 15000,
+				"extra_days": 6,
+				"allowance_per_extra_day": 500,
+				"advance_given": 118000,
+			}
+		)
+		trip.update(extra)
+		return trip.insert()
+
+	def test_driver_filled_from_assignment(self):
+		trip = self.make_trip()
+		self.assertEqual(trip.driver, self.driver)
+
+	def test_calculations_match_settlement_sheet(self):
+		trip = self.make_trip()
+		self.assertEqual(trip.loads[0].revenue, 0)  # empty run
+		self.assertEqual(trip.loads[1].revenue, 314000)  # 400 x 740 + 6 x 3000
+		self.assertEqual(trip.allowance, 18000)  # 15000 + 6 x 500
+		self.assertEqual(trip.total_cost, 121660)  # 77440 + 26220 + 18000
+		self.assertEqual(trip.refund_to_driver, 3660)  # 121660 - 118000
+		self.assertEqual(trip.refund_to_office, 0)
+		self.assertEqual(trip.net_income, 192340)  # 314000 - 121660
+
+	def test_internal_job_has_no_revenue(self):
+		trip = self.make_trip()
+		trip.loads[1].is_internal_job = 1
+		trip.save()
+		self.assertEqual(trip.total_revenue, 0)
+
+	def test_truck_cannot_be_on_two_active_trips(self):
+		self.make_trip()
+		with self.assertRaises(frappe.ValidationError):
+			self.make_trip()
+
+	def test_current_stage(self):
+		trip = self.make_trip()
+		self.assertEqual(trip.current_stage, "Assigned (Outbound)")
+		trip.loads[0].stage = "Delivered"
+		trip.loads[1].stage = "At Customs"
+		trip.save()
+		self.assertEqual(trip.current_stage, "At Customs (Return)")

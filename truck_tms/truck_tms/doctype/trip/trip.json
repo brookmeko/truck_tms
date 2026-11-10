@@ -1,0 +1,297 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "autoname": "TRP-.YYYY.-.#####",
+ "creation": "2026-11-10 21:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "section_trip",
+  "vehicle",
+  "trailer_plate",
+  "driver",
+  "driver_name",
+  "column_break_trip",
+  "start_date",
+  "end_date",
+  "status",
+  "current_stage",
+  "company",
+  "section_loads",
+  "loads",
+  "section_costs",
+  "fuel_litres",
+  "fuel_cost",
+  "road_expenses",
+  "column_break_allowance",
+  "allowance_base",
+  "extra_days",
+  "allowance_per_extra_day",
+  "allowance",
+  "section_settlement",
+  "advance_given",
+  "total_cost",
+  "column_break_settlement",
+  "refund_to_driver",
+  "refund_to_office",
+  "section_summary",
+  "total_revenue",
+  "column_break_summary",
+  "net_income",
+  "section_remarks",
+  "remarks",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_trip",
+   "fieldtype": "Section Break",
+   "label": "Trip"
+  },
+  {
+   "fieldname": "vehicle",
+   "fieldtype": "Link",
+   "label": "Truck",
+   "options": "Vehicle",
+   "reqd": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "trailer_plate",
+   "fieldtype": "Data",
+   "label": "Trailer Plate",
+   "fetch_from": "vehicle.trailer_plate",
+   "read_only": 1
+  },
+  {
+   "fieldname": "driver",
+   "fieldtype": "Link",
+   "label": "Driver",
+   "options": "Driver",
+   "reqd": 1,
+   "in_standard_filter": 1,
+   "description": "Filled automatically from the truck's active Vehicle Driver Assignment"
+  },
+  {
+   "fieldname": "driver_name",
+   "fieldtype": "Data",
+   "label": "Driver Name",
+   "fetch_from": "driver.full_name",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "column_break_trip",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "start_date",
+   "fieldtype": "Date",
+   "label": "Start Date",
+   "reqd": 1,
+   "default": "Today",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "end_date",
+   "fieldtype": "Date",
+   "label": "End Date"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Planned\nIn Progress\nCompleted\nCancelled",
+   "default": "Planned",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "current_stage",
+   "fieldtype": "Data",
+   "label": "Current Stage",
+   "read_only": 1,
+   "in_list_view": 1,
+   "no_copy": 1,
+   "description": "Stage of the first load that is not yet delivered"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1,
+   "remember_last_selected_value": 1
+  },
+  {
+   "fieldname": "section_loads",
+   "fieldtype": "Section Break",
+   "label": "Loads (Legs)"
+  },
+  {
+   "fieldname": "loads",
+   "fieldtype": "Table",
+   "label": "Loads",
+   "options": "Trip Load",
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_costs",
+   "fieldtype": "Section Break",
+   "label": "Trip Costs"
+  },
+  {
+   "fieldname": "fuel_litres",
+   "fieldtype": "Float",
+   "label": "Fuel (Litres)",
+   "precision": "2"
+  },
+  {
+   "fieldname": "fuel_cost",
+   "fieldtype": "Currency",
+   "label": "Fuel Cost"
+  },
+  {
+   "fieldname": "road_expenses",
+   "fieldtype": "Currency",
+   "label": "Road Expenses",
+   "description": "የተለያዩ የመንገድ ወጪዎች"
+  },
+  {
+   "fieldname": "column_break_allowance",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "allowance_base",
+   "fieldtype": "Currency",
+   "label": "Base Allowance"
+  },
+  {
+   "fieldname": "extra_days",
+   "fieldtype": "Int",
+   "label": "Extra Days"
+  },
+  {
+   "fieldname": "allowance_per_extra_day",
+   "fieldtype": "Currency",
+   "label": "Allowance per Extra Day",
+   "default": "500"
+  },
+  {
+   "fieldname": "allowance",
+   "fieldtype": "Currency",
+   "label": "Total Allowance",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_settlement",
+   "fieldtype": "Section Break",
+   "label": "Driver Settlement"
+  },
+  {
+   "fieldname": "advance_given",
+   "fieldtype": "Currency",
+   "label": "Advance Given to Driver",
+   "description": "Money sent before/during the trip"
+  },
+  {
+   "fieldname": "total_cost",
+   "fieldtype": "Currency",
+   "label": "Total Trip Cost",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_settlement",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "refund_to_driver",
+   "fieldtype": "Currency",
+   "label": "Office Owes Driver",
+   "read_only": 1
+  },
+  {
+   "fieldname": "refund_to_office",
+   "fieldtype": "Currency",
+   "label": "Driver Returns to Office",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_summary",
+   "fieldtype": "Section Break",
+   "label": "Summary"
+  },
+  {
+   "fieldname": "total_revenue",
+   "fieldtype": "Currency",
+   "label": "Total Revenue",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "column_break_summary",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "net_income",
+   "fieldtype": "Currency",
+   "label": "Net Income",
+   "read_only": 1,
+   "bold": 1
+  },
+  {
+   "fieldname": "section_remarks",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "options": "Trip",
+   "read_only": 1,
+   "no_copy": 1,
+   "print_hide": 1
+  }
+ ],
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-11-10 21:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Truck TMS",
+ "name": "Trip",
+ "naming_rule": "Expression (old style)",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "amend": 1,
+   "cancel": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "search_fields": "vehicle,driver_name",
+ "show_title_field_in_link": 0,
+ "sort_field": "start_date",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "vehicle",
+ "track_changes": 1
+}

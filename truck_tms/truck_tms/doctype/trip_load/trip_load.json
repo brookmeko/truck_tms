@@ -1,0 +1,221 @@
+{
+ "actions": [],
+ "creation": "2026-11-10 21:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "leg",
+  "origin",
+  "destination",
+  "cargo_type",
+  "is_empty_run",
+  "column_break_customer",
+  "customer",
+  "is_internal_job",
+  "stage",
+  "section_revenue",
+  "quintals",
+  "tariff_per_quintal",
+  "column_break_demurrage",
+  "demurrage_days",
+  "demurrage_rate",
+  "column_break_revenue",
+  "revenue",
+  "shortage_amount",
+  "section_dates",
+  "loading_date",
+  "documents_ready_date",
+  "border_crossing_date",
+  "column_break_dates",
+  "customs_in_date",
+  "customs_out_date",
+  "column_break_dates2",
+  "unloading_date",
+  "documents_submitted_date"
+ ],
+ "fields": [
+  {
+   "fieldname": "leg",
+   "fieldtype": "Select",
+   "label": "Leg",
+   "options": "Outbound\nReturn\nExtra",
+   "default": "Return",
+   "reqd": 1,
+   "in_list_view": 1,
+   "columns": 1
+  },
+  {
+   "fieldname": "origin",
+   "fieldtype": "Link",
+   "label": "From",
+   "options": "Transport Location",
+   "reqd": 1,
+   "in_list_view": 1,
+   "columns": 2
+  },
+  {
+   "fieldname": "destination",
+   "fieldtype": "Link",
+   "label": "To",
+   "options": "Transport Location",
+   "reqd": 1,
+   "in_list_view": 1,
+   "columns": 2
+  },
+  {
+   "fieldname": "cargo_type",
+   "fieldtype": "Link",
+   "label": "Cargo Type",
+   "options": "Cargo Type",
+   "reqd": 1
+  },
+  {
+   "fieldname": "is_empty_run",
+   "fieldtype": "Check",
+   "label": "Empty Run",
+   "fetch_from": "cargo_type.is_empty_run",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_customer",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "label": "Customer (አስጫኝ)",
+   "options": "Customer",
+   "in_list_view": 1,
+   "columns": 2,
+   "depends_on": "eval:!doc.is_empty_run && !doc.is_internal_job"
+  },
+  {
+   "fieldname": "is_internal_job",
+   "fieldtype": "Check",
+   "label": "Owner's Own Cargo",
+   "description": "የባለንብረቱ ስራ – no invoice, no revenue"
+  },
+  {
+   "fieldname": "stage",
+   "fieldtype": "Select",
+   "label": "Stage",
+   "options": "Assigned\nQueued for Loading\nLoading\nWaiting Documents\nIn Transit\nBorder Crossing\nAt Customs\nWaiting Unload Place\nUnload Queue\nUnloading\nDelivered",
+   "default": "Assigned",
+   "in_list_view": 1,
+   "columns": 1
+  },
+  {
+   "fieldname": "section_revenue",
+   "fieldtype": "Section Break",
+   "label": "Revenue",
+   "depends_on": "eval:!doc.is_empty_run"
+  },
+  {
+   "fieldname": "quintals",
+   "fieldtype": "Float",
+   "label": "Quantity (Quintals)",
+   "precision": "2"
+  },
+  {
+   "fieldname": "tariff_per_quintal",
+   "fieldtype": "Currency",
+   "label": "Tariff per Quintal"
+  },
+  {
+   "fieldname": "column_break_demurrage",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "demurrage_days",
+   "fieldtype": "Int",
+   "label": "Demurrage Days"
+  },
+  {
+   "fieldname": "demurrage_rate",
+   "fieldtype": "Currency",
+   "label": "Demurrage Rate per Day"
+  },
+  {
+   "fieldname": "column_break_revenue",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "revenue",
+   "fieldtype": "Currency",
+   "label": "Revenue",
+   "read_only": 1,
+   "in_list_view": 1,
+   "columns": 2
+  },
+  {
+   "fieldname": "shortage_amount",
+   "fieldtype": "Currency",
+   "label": "Shortage Deducted",
+   "description": "Value of missing cargo deducted by the customer"
+  },
+  {
+   "fieldname": "section_dates",
+   "fieldtype": "Section Break",
+   "label": "Dates",
+   "collapsible": 1
+  },
+  {
+   "fieldname": "loading_date",
+   "fieldtype": "Date",
+   "label": "Loading Date"
+  },
+  {
+   "fieldname": "documents_ready_date",
+   "fieldtype": "Date",
+   "label": "Documents Ready"
+  },
+  {
+   "fieldname": "border_crossing_date",
+   "fieldtype": "Date",
+   "label": "Border Crossing"
+  },
+  {
+   "fieldname": "column_break_dates",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "customs_in_date",
+   "fieldtype": "Date",
+   "label": "Customs In"
+  },
+  {
+   "fieldname": "customs_out_date",
+   "fieldtype": "Date",
+   "label": "Customs Out"
+  },
+  {
+   "fieldname": "column_break_dates2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "unloading_date",
+   "fieldtype": "Date",
+   "label": "Unloading Date"
+  },
+  {
+   "fieldname": "documents_submitted_date",
+   "fieldtype": "Date",
+   "label": "Documents Given to Customer",
+   "description": "Payment follow-up starts from this date"
+  }
+ ],
+ "istable": 1,
+ "links": [],
+ "modified": "2026-11-10 21:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Truck TMS",
+ "name": "Trip Load",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "ASC",
+ "states": [],
+ "track_changes": 1
+}
