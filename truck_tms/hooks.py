@@ -281,3 +281,11 @@ after_migrate = "truck_tms.setup.install.after_migrate"
 # List of apps whose translatable strings should be excluded from this app's translations.
 # ignore_translatable_strings_from = []
 
+
+
+# Document events
+doc_events = {
+	"Vehicle": {
+		"after_insert": "truck_tms.setup.vehicle.create_cost_center",
+	},
+}

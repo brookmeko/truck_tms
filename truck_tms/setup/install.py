@@ -53,6 +53,36 @@ def get_custom_fields():
 				"insert_after": "truck_status",
 				"no_copy": 1,
 			},
+			{
+				"fieldname": "cost_center",
+				"fieldtype": "Link",
+				"label": "Cost Center",
+				"options": "Cost Center",
+				"insert_after": "wialon_unit_id",
+				"read_only": 1,
+				"description": "Created automatically so profit and loss can be reported per truck",
+			},
+		],
+		"Sales Invoice": [
+			{
+				"fieldname": "trip",
+				"fieldtype": "Link",
+				"label": "Trip",
+				"options": "Trip",
+				"insert_after": "customer",
+				"read_only": 1,
+				"no_copy": 1,
+				"in_standard_filter": 1,
+			},
+			{
+				"fieldname": "trip_load",
+				"fieldtype": "Data",
+				"label": "Trip Load Row",
+				"insert_after": "trip",
+				"read_only": 1,
+				"hidden": 1,
+				"no_copy": 1,
+			},
 		],
 	}
 
@@ -67,3 +97,6 @@ def after_install():
 
 def after_migrate():
 	setup_custom_fields()
+	from truck_tms.setup.vehicle import ensure_vehicle_cost_centers
+
+	ensure_vehicle_cost_centers()

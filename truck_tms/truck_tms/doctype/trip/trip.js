@@ -28,6 +28,25 @@ frappe.ui.form.on("Trip", {
 	},
 
 	refresh(frm) {
+		if (!frm.is_new() && frm.doc.docstatus < 2) {
+			frm.add_custom_button(
+				__("Create Invoices"),
+				() => {
+					frappe.call({
+						method: "truck_tms.truck_tms.doctype.trip.invoicing.make_sales_invoices",
+						args: { trip: frm.doc.name },
+						freeze: true,
+						callback(r) {
+							if (r.message && r.message.length) {
+								frappe.msgprint(__("Created draft invoices: {0}", [r.message.join(", ")]));
+								frm.reload_doc();
+							}
+						},
+					});
+				},
+				__("Billing")
+			);
+		}
 		if (frm.doc.docstatus === 0 && !frm.is_new() && frm.doc.status === "Planned") {
 			frm.add_custom_button(__("Start Trip"), () => {
 				frm.set_value("status", "In Progress");

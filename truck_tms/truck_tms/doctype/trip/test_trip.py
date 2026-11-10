@@ -11,7 +11,7 @@ from truck_tms.truck_tms.doctype.vehicle_driver_assignment.test_vehicle_driver_a
 )
 
 EXTRA_TEST_RECORD_DEPENDENCIES = []
-IGNORE_TEST_RECORD_DEPENDENCIES = ["Vehicle", "Driver", "Customer", "Company"]
+IGNORE_TEST_RECORD_DEPENDENCIES = ["Vehicle", "Driver", "Customer", "Company", "Sales Invoice", "Item", "Cost Center"]
 
 
 def make_location(name, location_type):
@@ -148,3 +148,46 @@ class IntegrationTestTrip(IntegrationTestCase):
 		self.assertEqual(row["trip"], trip.name)
 		self.assertEqual(row["stage"], "Border Crossing (Return)")
 		self.assertEqual(row["quintals"], 400)
+
+	def test_truck_gets_cost_center(self):
+		cc = frappe.db.get_value("Vehicle", self.truck, "cost_center")
+		if not cc:  # vehicle may pre-date the hook
+			from truck_tms.setup.vehicle import create_cost_center
+
+			create_cost_center(frappe.get_doc("Vehicle", self.truck))
+			cc = frappe.db.get_value("Vehicle", self.truck, "cost_center")
+		self.assertTrue(cc and cc.startswith(self.truck))
+
+	def test_create_invoice_for_paying_load_only(self):
+		from truck_tms.truck_tms.doctype.trip.invoicing import make_sales_invoices
+
+		customer = make_customer("Test Freight Customer")
+		trip = self.make_trip()
+		trip.loads[1].customer = customer
+		trip.loads[1].shortage_amount = 10000
+		trip.save()
+
+		invoices = make_sales_invoices(trip.name)
+		self.assertEqual(len(invoices), 1)  # empty outbound leg is not invoiced
+		si = frappe.get_doc("Sales Invoice", invoices[0])
+		self.assertEqual(si.trip, trip.name)
+		self.assertEqual(si.docstatus, 0)  # draft for finance review
+		self.assertEqual(si.total, 314000)  # 400 x 740 + 6 x 3000
+		self.assertEqual(si.grand_total, 304000)  # minus 10,000 shortage
+		self.assertEqual(frappe.db.get_value("Trip Load", trip.loads[1].name, "sales_invoice"), si.name)
+
+		# Running again does not create duplicates
+		self.assertEqual(make_sales_invoices(trip.name), [])
+
+
+def make_customer(name):
+	if not frappe.db.exists("Customer", name):
+		frappe.get_doc(
+			{
+				"doctype": "Customer",
+				"customer_name": name,
+				"customer_group": frappe.db.get_value("Customer Group", {"is_group": 0}, "name"),
+				"territory": frappe.db.get_value("Territory", {"is_group": 0}, "name"),
+			}
+		).insert()
+	return name
