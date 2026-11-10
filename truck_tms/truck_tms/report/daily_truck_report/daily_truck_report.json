@@ -9,7 +9,7 @@
  "idx": 0,
  "is_standard": "Yes",
  "letter_head": null,
- "modified": "2026-11-10 21:30:00.000000",
+ "modified": "2026-11-10 23:00:00.000000",
  "modified_by": "Administrator",
  "module": "Truck TMS",
  "name": "Daily Truck Report",
@@ -21,6 +21,15 @@
  "roles": [
   {
    "role": "System Manager"
+  },
+  {
+   "role": "Transport Dispatcher"
+  },
+  {
+   "role": "Transport Manager"
+  },
+  {
+   "role": "Transport Finance"
   }
  ]
 }

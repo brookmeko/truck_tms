@@ -47,6 +47,35 @@ frappe.ui.form.on("Trip", {
 				__("Billing")
 			);
 		}
+		if (frm.doc.docstatus === 0 && frm.doc.driver) {
+			frm.add_custom_button(
+				__("Get Driver Deductions"),
+				() => {
+					frappe.call({
+						method: "truck_tms.truck_tms.doctype.driver_deduction.driver_deduction.get_outstanding_deductions",
+						args: {
+							driver: frm.doc.driver,
+							exclude: (frm.doc.deductions || []).map((d) => d.driver_deduction),
+						},
+						callback(r) {
+							if (!r.message || !r.message.length) {
+								frappe.msgprint(__("No outstanding deductions for this driver."));
+								return;
+							}
+							r.message.forEach((d) => {
+								const row = frm.add_child("deductions");
+								row.driver_deduction = d.name;
+								row.reason = d.reason;
+								row.amount = d.suggested;
+							});
+							frm.refresh_field("deductions");
+							frm.dirty();
+						},
+					});
+				},
+				__("Settlement")
+			);
+		}
 		if (frm.doc.docstatus === 0 && !frm.is_new() && frm.doc.status === "Planned") {
 			frm.add_custom_button(__("Start Trip"), () => {
 				frm.set_value("status", "In Progress");

@@ -37,7 +37,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-11-10 20:35:00.000000",
+ "modified": "2026-11-10 23:00:00.000000",
  "modified_by": "Administrator",
  "module": "Truck TMS",
  "name": "Cargo Type",
@@ -45,16 +45,46 @@
  "owner": "Administrator",
  "permissions": [
   {
-   "create": 1,
-   "delete": 1,
-   "email": 1,
-   "export": 1,
-   "print": 1,
+   "role": "System Manager",
    "read": 1,
    "report": 1,
-   "role": "System Manager",
+   "print": 1,
+   "export": 1,
+   "email": 1,
    "share": 1,
-   "write": 1
+   "create": 1,
+   "write": 1,
+   "delete": 1
+  },
+  {
+   "role": "Transport Dispatcher",
+   "read": 1,
+   "report": 1,
+   "print": 1,
+   "export": 1,
+   "email": 1,
+   "share": 1
+  },
+  {
+   "role": "Transport Manager",
+   "read": 1,
+   "report": 1,
+   "print": 1,
+   "export": 1,
+   "email": 1,
+   "share": 1,
+   "create": 1,
+   "write": 1,
+   "delete": 1
+  },
+  {
+   "role": "Transport Finance",
+   "read": 1,
+   "report": 1,
+   "print": 1,
+   "export": 1,
+   "email": 1,
+   "share": 1
   }
  ],
  "quick_entry": 1,

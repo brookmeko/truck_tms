@@ -27,6 +27,7 @@ class Trip(Document):
 		self.validate_truck_not_on_another_trip()
 		self.set_stage_dates()
 		self.calculate_load_revenue()
+		self.validate_deductions()
 		self.calculate_costs()
 		self.calculate_summary()
 		self.set_current_stage()
@@ -114,6 +115,38 @@ class Trip(Document):
 			}
 		).insert(ignore_permissions=True)
 
+	# ----- driver deductions -------------------------------------------------
+
+	def validate_deductions(self):
+		"""Each row must be a confirmed deduction of THIS trip's driver, and not more than what is outstanding."""
+		seen = set()
+		for row in self.deductions:
+			if row.driver_deduction in seen:
+				frappe.throw(_("Row {0}: deduction {1} is listed twice").format(row.idx, row.driver_deduction))
+			seen.add(row.driver_deduction)
+			ded = frappe.db.get_value(
+				"Driver Deduction",
+				row.driver_deduction,
+				["driver", "docstatus", "outstanding_amount", "reason"],
+				as_dict=True,
+			)
+			if ded.docstatus != 1:
+				frappe.throw(_("Row {0}: deduction {1} is not submitted yet").format(row.idx, row.driver_deduction))
+			if ded.driver != self.driver:
+				frappe.throw(_("Row {0}: deduction {1} belongs to another driver").format(row.idx, row.driver_deduction))
+			if flt(row.amount) <= 0 or flt(row.amount) > flt(ded.outstanding_amount):
+				frappe.throw(
+					_("Row {0}: amount must be between 0 and the outstanding {1}").format(
+						row.idx, frappe.format_value(ded.outstanding_amount, {"fieldtype": "Currency"})
+					)
+				)
+			row.reason = ded.reason
+		self.deduction_total = sum(flt(row.amount) for row in self.deductions)
+
+	def update_deduction_recovery(self):
+		for row in self.deductions:
+			frappe.get_doc("Driver Deduction", row.driver_deduction).update_recovery()
+
 	# ----- calculations ------------------------------------------------------
 
 	def calculate_load_revenue(self):
@@ -133,7 +166,8 @@ class Trip(Document):
 		Settlement: compare total cost with the advance given to the driver."""
 		self.allowance = flt(self.allowance_base) + flt(self.extra_days) * flt(self.allowance_per_extra_day)
 		self.total_cost = flt(self.fuel_cost) + flt(self.road_expenses) + flt(self.allowance)
-		difference = flt(self.total_cost) - flt(self.advance_given)
+		# Deductions are money the driver owes, so they reduce what the office pays him.
+		difference = flt(self.total_cost) - flt(self.advance_given) - flt(self.deduction_total)
 		self.refund_to_driver = difference if difference > 0 else 0
 		self.refund_to_office = -difference if difference < 0 else 0
 
@@ -162,10 +196,12 @@ class Trip(Document):
 
 	def on_submit(self):
 		self.set_truck_status("Available")
+		self.update_deduction_recovery()
 
 	def on_cancel(self):
 		self.db_set("status", "Cancelled")
 		self.set_truck_status("Available")
+		self.update_deduction_recovery()
 
 	def set_truck_status(self, status):
 		frappe.db.set_value("Vehicle", self.vehicle, "truck_status", status)

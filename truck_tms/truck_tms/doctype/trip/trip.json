@@ -29,6 +29,9 @@
   "extra_days",
   "allowance_per_extra_day",
   "allowance",
+  "section_deductions",
+  "deductions",
+  "deduction_total",
   "section_settlement",
   "advance_given",
   "total_cost",
@@ -196,6 +199,24 @@
    "read_only": 1
   },
   {
+   "fieldname": "section_deductions",
+   "fieldtype": "Section Break",
+   "label": "Driver Deductions",
+   "collapsible": 1
+  },
+  {
+   "fieldname": "deductions",
+   "fieldtype": "Table",
+   "label": "Deductions",
+   "options": "Trip Deduction"
+  },
+  {
+   "fieldname": "deduction_total",
+   "fieldtype": "Currency",
+   "label": "Total Deductions",
+   "read_only": 1
+  },
+  {
    "fieldname": "section_settlement",
    "fieldtype": "Section Break",
    "label": "Driver Settlement"
@@ -272,7 +293,7 @@
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2026-11-10 21:30:00.000000",
+ "modified": "2026-11-10 23:00:00.000000",
  "modified_by": "Administrator",
  "module": "Truck TMS",
  "name": "Trip",
@@ -280,18 +301,54 @@
  "owner": "Administrator",
  "permissions": [
   {
-   "amend": 1,
-   "cancel": 1,
-   "create": 1,
-   "delete": 1,
-   "email": 1,
-   "export": 1,
-   "print": 1,
+   "role": "System Manager",
    "read": 1,
    "report": 1,
-   "role": "System Manager",
+   "print": 1,
+   "export": 1,
+   "email": 1,
    "share": 1,
+   "create": 1,
+   "write": 1,
+   "delete": 1,
    "submit": 1,
+   "cancel": 1,
+   "amend": 1
+  },
+  {
+   "role": "Transport Dispatcher",
+   "read": 1,
+   "report": 1,
+   "print": 1,
+   "export": 1,
+   "email": 1,
+   "share": 1,
+   "create": 1,
+   "write": 1
+  },
+  {
+   "role": "Transport Manager",
+   "read": 1,
+   "report": 1,
+   "print": 1,
+   "export": 1,
+   "email": 1,
+   "share": 1,
+   "create": 1,
+   "write": 1,
+   "delete": 1,
+   "submit": 1,
+   "cancel": 1,
+   "amend": 1
+  },
+  {
+   "role": "Transport Finance",
+   "read": 1,
+   "report": 1,
+   "print": 1,
+   "export": 1,
+   "email": 1,
+   "share": 1,
    "write": 1
   }
  ],
