@@ -1,0 +1,70 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:cargo_type_name",
+ "creation": "2026-11-10 20:35:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "cargo_type_name",
+  "amharic_name",
+  "is_empty_run"
+ ],
+ "fields": [
+  {
+   "fieldname": "cargo_type_name",
+   "fieldtype": "Data",
+   "label": "Cargo Type Name",
+   "reqd": 1,
+   "unique": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "amharic_name",
+   "fieldtype": "Data",
+   "label": "Amharic Name",
+   "in_list_view": 1
+  },
+  {
+   "default": "0",
+   "description": "Tick for empty runs (በባዶ) so they are not counted as missing revenue",
+   "fieldname": "is_empty_run",
+   "fieldtype": "Check",
+   "label": "Is Empty Run",
+   "in_list_view": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-11-10 20:35:00.000000",
+ "modified_by": "Administrator",
+ "module": "Truck TMS",
+ "name": "Cargo Type",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "search_fields": "amharic_name",
+ "show_title_field_in_link": 0,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "cargo_type_name",
+ "track_changes": 1
+}
