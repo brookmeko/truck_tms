@@ -97,6 +97,18 @@ def after_install():
 
 def after_migrate():
 	setup_custom_fields()
+	ensure_erpnext_contact_fields()
 	from truck_tms.setup.vehicle import ensure_vehicle_cost_centers
 
 	ensure_vehicle_cost_centers()
+
+
+def ensure_erpnext_contact_fields():
+	"""ERPNext v16 needs Contact.is_billing_contact to create Sales Invoices.
+	On some fresh sites it was missing, so re-run ERPNext's own (idempotent) setup."""
+	import frappe
+
+	if not frappe.db.has_column("Contact", "is_billing_contact"):
+		from erpnext.setup.install import create_address_and_contact_custom_fields
+
+		create_address_and_contact_custom_fields()
