@@ -111,3 +111,9 @@ def get_dashboard():
 		"customer_outstanding": flt(outstanding),
 	}
 
+
+
+def has_app_permission():
+	"""Show Truck TMS on the apps screen to admins and the three transport roles."""
+	roles = set(frappe.get_roles())
+	return bool(roles & {"System Manager", "Transport Dispatcher", "Transport Manager", "Transport Finance"})

@@ -11,15 +11,15 @@ app_license = "mit"
 # required_apps = []
 
 # Each item in the list will be shown as an app in the apps page
-# add_to_apps_screen = [
-# 	{
-# 		"name": "truck_tms",
-# 		"logo": "/assets/truck_tms/logo.png",
-# 		"title": "Truck TMS",
-# 		"route": "/truck_tms",
-# 		"has_permission": "truck_tms.api.permission.has_app_permission",
-# 	}
-# ]
+add_to_apps_screen = [
+	{
+		"name": "truck_tms",
+		"logo": "/assets/truck_tms/images/truck-tms-logo.svg",
+		"title": "Truck TMS",
+		"route": "/desk/dashboard-view/Truck TMS",
+		"has_permission": "truck_tms.api.has_app_permission",
+	}
+]
 
 # The dock, the rail down the left of the desk, is a document rather than a hook. Author it in
 # Manage Dock on a developer-mode site and press Export to App, and it is written to

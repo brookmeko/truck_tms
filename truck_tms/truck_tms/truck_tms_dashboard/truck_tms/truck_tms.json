@@ -1,0 +1,37 @@
+{
+ "cards": [
+  {
+   "card": "Active Trips"
+  },
+  {
+   "card": "Trucks Available"
+  },
+  {
+   "card": "Revenue This Month"
+  },
+  {
+   "card": "Net Income This Month"
+  },
+  {
+   "card": "Customer Outstanding"
+  }
+ ],
+ "charts": [
+  {
+   "chart": "Net Income by Truck",
+   "width": "Full"
+  }
+ ],
+ "creation": "2026-11-11 02:00:00.000000",
+ "dashboard_name": "Truck TMS",
+ "docstatus": 0,
+ "doctype": "Dashboard",
+ "idx": 0,
+ "is_default": 0,
+ "is_standard": 1,
+ "modified": "2026-11-11 02:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Truck TMS",
+ "name": "Truck TMS",
+ "owner": "Administrator"
+}

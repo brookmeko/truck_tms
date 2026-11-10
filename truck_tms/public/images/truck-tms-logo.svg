@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Truck TMS">
+  <rect width="64" height="64" rx="14" fill="#0B6B52"/>
+  <path d="M10 22h26v20H10zM36 28h9l7 7v7H36z" fill="#FFFFFF"/>
+  <circle cx="19" cy="44" r="5" fill="#0B6B52" stroke="#FFFFFF" stroke-width="3"/>
+  <circle cx="45" cy="44" r="5" fill="#0B6B52" stroke="#FFFFFF" stroke-width="3"/>
+</svg>
