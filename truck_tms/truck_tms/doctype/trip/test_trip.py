@@ -233,3 +233,39 @@ def setup_transport_accounts():
 		settings.bank_account = get_or_create_account(company, "Test Bank", "Asset", "Bank", "Bank Accounts")
 		settings.save()
 	return settings
+
+
+class IntegrationTestReports(IntegrationTestCase):
+	"""The three management reports, using the Trip test set-up."""
+
+	setUp = IntegrationTestTrip.setUp
+	tearDown = IntegrationTestTrip.tearDown
+	make_trip = IntegrationTestTrip.make_trip
+
+	def test_trip_profitability(self):
+		from truck_tms.truck_tms.report.trip_profitability.trip_profitability import execute
+
+		trip = self.make_trip()
+		columns, rows = execute({"vehicle": self.truck})
+		row = next(r for r in rows if r.name == trip.name)
+		self.assertEqual(row.net_income, 192340)
+		self.assertIn("Test Djibouti → Test Addis", row.route)
+		self.assertAlmostEqual(row.margin, 192340 / 314000 * 100, places=2)
+
+	def test_truck_profit_by_month(self):
+		from truck_tms.truck_tms.report.truck_profit_by_month.truck_profit_by_month import execute
+
+		self.make_trip()
+		columns, rows, message, chart = execute({"vehicle": self.truck})
+		self.assertEqual(rows[0].month, "2026-03")
+		self.assertEqual(rows[0].trips, 1)
+		self.assertEqual(rows[0].net, 192340)
+		self.assertEqual(chart["data"]["labels"], [self.truck])
+
+	def test_driver_settlement_summary(self):
+		from truck_tms.truck_tms.report.driver_settlement_summary.driver_settlement_summary import execute
+
+		self.make_trip()
+		columns, rows = execute({"driver": self.driver})
+		self.assertEqual(rows[0].refund_to_driver, 3660)
+		self.assertEqual(rows[0].unsettled, 1)
