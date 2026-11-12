@@ -342,3 +342,37 @@ class IntegrationTestOperationsBoard(IntegrationTestCase):
 		self.assertEqual(trip.loads[0].stage, "In Transit")
 		self.assertEqual(trip.board_column, "In Transit")
 		self.assertEqual(trip.current_stage, "In Transit (Outbound)")
+
+
+class IntegrationTestDriverAndMonthlyReports(IntegrationTestCase):
+	setUp = IntegrationTestTrip.setUp
+	tearDown = IntegrationTestTrip.tearDown
+	make_trip = IntegrationTestTrip.make_trip
+
+	def test_driver_expense_report_per_trip_and_per_driver(self):
+		from truck_tms.truck_tms.report.driver_expense_report.driver_expense_report import execute
+
+		trip = self.make_trip()
+		f = {"from_date": "2026-01-01", "to_date": "2026-12-31", "driver": self.driver}
+		_cols, rows = execute({**f, "group_by": "Trip"})
+		row = next(r for r in rows if r.trip == trip.name)
+		self.assertEqual(row.total_cost, 121660)
+		self.assertEqual(row.fuel_litres, 1000)
+		_cols, rows = execute({**f, "group_by": "Driver"})
+		self.assertEqual(rows[0].trips, 1)
+		self.assertEqual(rows[0].allowance, 18000)
+
+	def test_monthly_performance_trips_per_truck(self):
+		from truck_tms.truck_tms.report.monthly_performance.monthly_performance import execute
+
+		self.make_trip()  # starts 2026-03-01
+		cols, rows, _msg, chart = execute(
+			{"from_date": "2026-01-01", "to_date": "2026-06-30", "group_by": "Truck", "measure": "Trips", "vehicle": self.truck}
+		)
+		self.assertEqual([c["label"] for c in cols][1:7], ["2026-01", "2026-02", "2026-03", "2026-04", "2026-05", "2026-06"])
+		self.assertEqual(rows[0]["2026_03"], 1)
+		self.assertEqual(rows[0]["total"], 1)
+		cols, rows, _msg, chart = execute(
+			{"from_date": "2026-01-01", "to_date": "2026-06-30", "group_by": "Driver", "measure": "Net Income", "driver": self.driver}
+		)
+		self.assertEqual(rows[0]["2026_03"], 192340)
