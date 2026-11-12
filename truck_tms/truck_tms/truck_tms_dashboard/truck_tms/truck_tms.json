@@ -14,6 +14,12 @@
   },
   {
    "card": "Customer Outstanding"
+  },
+  {
+   "card": "Loads Not Invoiced"
+  },
+  {
+   "card": "Unpaid Over 30 Days"
   }
  ],
  "charts": [
@@ -29,7 +35,7 @@
  "idx": 0,
  "is_default": 0,
  "is_standard": 1,
- "modified": "2026-11-11 02:00:00.000000",
+ "modified": "2026-11-12 20:00:00.000000",
  "modified_by": "Administrator",
  "module": "Truck TMS",
  "name": "Truck TMS",

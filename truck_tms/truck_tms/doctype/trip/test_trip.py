@@ -376,3 +376,45 @@ class IntegrationTestDriverAndMonthlyReports(IntegrationTestCase):
 			{"from_date": "2026-01-01", "to_date": "2026-06-30", "group_by": "Driver", "measure": "Net Income", "driver": self.driver}
 		)
 		self.assertEqual(rows[0]["2026_03"], 192340)
+
+
+class IntegrationTestPaymentFollowUp(IntegrationTestCase):
+	setUp = IntegrationTestTrip.setUp
+	tearDown = IntegrationTestTrip.tearDown
+	make_trip = IntegrationTestTrip.make_trip
+
+	def delivered_trip(self):
+		trip = self.make_trip()
+		trip.loads[1].customer = make_customer("Test Freight Customer")
+		trip.loads[0].stage = "Delivered"
+		trip.loads[1].stage = "Delivered"
+		trip.save()
+		return trip
+
+	def test_follow_up_statuses(self):
+		from truck_tms.truck_tms.doctype.trip.invoicing import make_sales_invoices
+		from truck_tms.truck_tms.report.payment_follow_up.payment_follow_up import execute
+
+		trip = self.delivered_trip()
+		row = lambda: next(r for r in execute({})[1] if r["trip"] == trip.name)
+		self.assertEqual(row()["status"], "Not Invoiced")
+		self.assertEqual(row()["amount"], 314000)
+
+		si = frappe.get_doc("Sales Invoice", make_sales_invoices(trip.name)[0])
+		self.assertEqual(row()["status"], "Draft Invoice")
+
+		si.submit()
+		self.assertEqual(row()["status"], "Unpaid")
+		self.assertEqual(row()["outstanding"], 314000)
+
+	def test_reminders_notify_finance(self):
+		from truck_tms.reminders import send_daily_reminders
+
+		self.delivered_trip()
+		user = "finance.reminder@test.local"
+		if not frappe.db.exists("User", user):
+			frappe.get_doc({"doctype": "User", "email": user, "first_name": "Finance", "send_welcome_email": 0,
+				"roles": [{"role": "Transport Finance"}]}).insert(ignore_permissions=True)
+		summary = send_daily_reminders()
+		self.assertGreaterEqual(summary.not_invoiced, 1)
+		self.assertTrue(frappe.db.exists("Notification Log", {"for_user": user}))

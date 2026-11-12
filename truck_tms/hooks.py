@@ -291,3 +291,11 @@ doc_events = {
 		"after_insert": "truck_tms.setup.vehicle.create_cost_center",
 	},
 }
+
+
+# Scheduled jobs: daily reminders at 08:00 (site time zone)
+scheduler_events = {
+	"cron": {
+		"0 8 * * *": ["truck_tms.reminders.send_daily_reminders"],
+	},
+}
