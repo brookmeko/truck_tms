@@ -1,0 +1,86 @@
+{
+ "actions": [],
+ "creation": "2026-11-12 21:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "date",
+  "amount",
+  "location",
+  "purpose",
+  "payment_method",
+  "reference",
+  "journal_entry"
+ ],
+ "fields": [
+  {
+   "fieldname": "date",
+   "fieldtype": "Date",
+   "label": "Date",
+   "reqd": 1,
+   "default": "Today",
+   "in_list_view": 1,
+   "columns": 2
+  },
+  {
+   "fieldname": "amount",
+   "fieldtype": "Currency",
+   "label": "Amount",
+   "reqd": 1,
+   "in_list_view": 1,
+   "columns": 2
+  },
+  {
+   "fieldname": "location",
+   "fieldtype": "Link",
+   "label": "Given At",
+   "options": "Transport Location",
+   "in_list_view": 1,
+   "columns": 2,
+   "description": "Where the driver received it, e.g. Addis Ababa, Dire Dawa, Djibouti"
+  },
+  {
+   "fieldname": "purpose",
+   "fieldtype": "Select",
+   "label": "For",
+   "options": "Fuel\nRoad Expenses\nAllowance\nMixed",
+   "default": "Mixed",
+   "in_list_view": 1,
+   "columns": 1
+  },
+  {
+   "fieldname": "payment_method",
+   "fieldtype": "Select",
+   "label": "Paid By",
+   "options": "Bank Transfer\nCash\nMobile Money",
+   "default": "Bank Transfer"
+  },
+  {
+   "fieldname": "reference",
+   "fieldtype": "Data",
+   "label": "Reference",
+   "description": "Bank or transfer reference number"
+  },
+  {
+   "fieldname": "journal_entry",
+   "fieldtype": "Link",
+   "label": "Journal Entry",
+   "options": "Journal Entry",
+   "read_only": 1,
+   "no_copy": 1,
+   "in_list_view": 1,
+   "columns": 2
+  }
+ ],
+ "istable": 1,
+ "links": [],
+ "modified": "2026-11-12 21:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Truck TMS",
+ "name": "Trip Advance",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "states": []
+}

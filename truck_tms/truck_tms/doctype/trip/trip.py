@@ -30,6 +30,7 @@ class Trip(Document):
 		self.set_stage_dates()
 		self.calculate_load_revenue()
 		self.validate_deductions()
+		self.validate_advances()
 		self.calculate_costs()
 		self.calculate_summary()
 		self.set_current_stage()
@@ -157,6 +158,29 @@ class Trip(Document):
 		for row in self.deductions:
 			frappe.get_doc("Driver Deduction", row.driver_deduction).update_recovery()
 
+	# ----- advances ------------------------------------------------------------
+
+	def validate_advances(self):
+		"""Every payment to the driver is a row. A row already posted to the accounts
+		(has a Journal Entry) cannot be removed or changed."""
+		for row in self.advances:
+			if flt(row.amount) <= 0:
+				frappe.throw(_("Advances row {0}: amount must be greater than zero").format(row.idx))
+		before = self.get_doc_before_save()
+		if not before:
+			return
+		current = {row.name: row for row in self.advances}
+		for old in before.advances:
+			if not old.journal_entry:
+				continue
+			new = current.get(old.name)
+			if not new or flt(new.amount) != flt(old.amount) or new.journal_entry != old.journal_entry:
+				frappe.throw(
+					_("Advance of {0} is already recorded in accounts ({1}). Cancel that journal entry first.").format(
+						frappe.format_value(old.amount, {"fieldtype": "Currency"}), old.journal_entry
+					)
+				)
+
 	# ----- calculations ------------------------------------------------------
 
 	def calculate_load_revenue(self):
@@ -174,6 +198,7 @@ class Trip(Document):
 		"""Allowance = base + extra days x per-day amount.
 		Total cost = fuel + road expenses + allowance.
 		Settlement: compare total cost with the advance given to the driver."""
+		self.advance_given = sum(flt(row.amount) for row in self.advances)
 		self.allowance = flt(self.allowance_base) + flt(self.extra_days) * flt(self.allowance_per_extra_day)
 		self.total_cost = flt(self.fuel_cost) + flt(self.road_expenses) + flt(self.allowance)
 		# Deductions are money the driver owes, so they reduce what the office pays him.

@@ -72,7 +72,12 @@ class IntegrationTestTrip(IntegrationTestCase):
 				"allowance_base": 15000,
 				"extra_days": 6,
 				"allowance_per_extra_day": 500,
-				"advance_given": 118000,
+				# Three advances, as in the sheet formula =80000+35000+3000
+				"advances": [
+					{"date": "2026-03-01", "amount": 80000, "purpose": "Fuel"},
+					{"date": "2026-03-03", "amount": 35000, "purpose": "Road Expenses"},
+					{"date": "2026-03-05", "amount": 3000, "purpose": "Mixed"},
+				],
 			}
 		)
 		trip.update(extra)
@@ -180,15 +185,27 @@ class IntegrationTestTrip(IntegrationTestCase):
 		self.assertEqual(make_sales_invoices(trip.name), [])
 
 	def test_advance_and_settlement_entries(self):
-		from truck_tms.truck_tms.doctype.trip.accounting import make_advance_entry, make_settlement_entry
+		from truck_tms.truck_tms.doctype.trip.accounting import make_advance_entries, make_settlement_entry
 
 		s = setup_transport_accounts()
 		trip = self.make_trip()
+		self.assertEqual(trip.advance_given, 118000)  # 80,000 + 35,000 + 3,000
 
-		adv = frappe.get_doc("Journal Entry", make_advance_entry(trip.name))
-		self.assertEqual(adv.docstatus, 0)  # draft for the accountant
-		lines = {(a.account, a.debit, a.credit) for a in adv.accounts}
-		self.assertEqual(lines, {(s.driver_advance_account, 118000, 0), (s.bank_account, 0, 118000)})
+		entries = make_advance_entries(trip.name)
+		self.assertEqual(len(entries), 3)  # one bank entry per advance
+		first = frappe.get_doc("Journal Entry", entries[0])
+		self.assertEqual(first.docstatus, 0)  # draft for the accountant
+		lines = {(a.account, a.debit, a.credit) for a in first.accounts}
+		self.assertEqual(lines, {(s.driver_advance_account, 80000, 0), (s.bank_account, 0, 80000)})
+		with self.assertRaises(frappe.ValidationError):
+			make_advance_entries(trip.name)  # nothing left to record
+
+		# A posted advance cannot be changed
+		trip.reload()
+		trip.advances[0].amount = 90000
+		with self.assertRaises(frappe.ValidationError):
+			trip.save()
+		trip.reload()
 
 		# Settlement is blocked until receipts are checked
 		with self.assertRaises(frappe.ValidationError):

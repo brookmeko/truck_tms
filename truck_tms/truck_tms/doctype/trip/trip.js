@@ -55,13 +55,14 @@ frappe.ui.form.on("Trip", {
 					freeze: true,
 					callback(r) {
 						if (r.message) {
-							frappe.msgprint(__("{0} created as draft: {1}", [label, r.message]));
+							const names = Array.isArray(r.message) ? r.message.join(", ") : r.message;
+							frappe.msgprint(__("{0} created as draft: {1}", [label, names]));
 							frm.reload_doc();
 						}
 					},
 				});
-			if (!frm.doc.advance_journal_entry && frm.doc.advance_given) {
-				frm.add_custom_button(__("Record Advance Paid"), () => call("make_advance_entry", __("Advance entry")), __("Settlement"));
+			if ((frm.doc.advances || []).some((row) => !row.journal_entry)) {
+				frm.add_custom_button(__("Record Advances Paid"), () => call("make_advance_entries", __("Advance entries")), __("Settlement"));
 			}
 			if (!frm.doc.settlement_journal_entry && frm.doc.receipts_verified) {
 				frm.add_custom_button(__("Create Settlement Entry"), () => call("make_settlement_entry", __("Settlement entry")), __("Settlement"));
@@ -102,5 +103,14 @@ frappe.ui.form.on("Trip", {
 				frm.save();
 			});
 		}
+	},
+});
+
+frappe.ui.form.on("Trip Advance", {
+	amount(frm) {
+		frm.set_value("advance_given", (frm.doc.advances || []).reduce((t, r) => t + (r.amount || 0), 0));
+	},
+	advances_remove(frm) {
+		frm.set_value("advance_given", (frm.doc.advances || []).reduce((t, r) => t + (r.amount || 0), 0));
 	},
 });
