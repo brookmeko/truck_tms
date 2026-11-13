@@ -114,3 +114,33 @@ frappe.ui.form.on("Trip Advance", {
 		frm.set_value("advance_given", (frm.doc.advances || []).reduce((t, r) => t + (r.amount || 0), 0));
 	},
 });
+
+// Driver expense form: show running totals while lines are typed in (the server recalculates on save).
+function update_expense_totals(frm) {
+	let fuel = 0, litres = 0, other = 0, rejected = 0;
+	(frm.doc.expenses || []).forEach((r) => {
+		if (r.rejected) {
+			rejected += r.amount || 0;
+		} else if (r.is_fuel) {
+			fuel += r.amount || 0;
+			litres += r.litres || 0;
+		} else {
+			other += r.amount || 0;
+		}
+	});
+	frm.set_value({ fuel_cost: fuel, fuel_litres: litres, road_expenses: other, rejected_expenses: rejected });
+}
+
+frappe.ui.form.on("Trip Expense", {
+	amount: update_expense_totals,
+	litres: update_expense_totals,
+	rejected: update_expense_totals,
+	is_fuel: update_expense_totals,
+	expenses_remove: update_expense_totals,
+	expenses_add(frm, cdt, cdn) {
+		// New line defaults to the trip's last expense date
+		const rows = frm.doc.expenses || [];
+		const prev = rows.length > 1 ? rows[rows.length - 2].date : frm.doc.start_date;
+		if (prev) frappe.model.set_value(cdt, cdn, "date", prev);
+	},
+});

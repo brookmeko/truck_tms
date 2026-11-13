@@ -66,3 +66,35 @@ def seed_master_data():
 
 	frappe.db.commit()
 	print(f"Created {created} records")
+
+
+EXPENSE_TYPES = [
+	# (name, amharic, category, is_fuel)
+	("Fuel", "ነዳጅ", "Fuel", 1),
+	("Road Toll", "የመንገድ ክፍያ", "Road & Tolls", 0),
+	("Weighbridge", "ሚዛን", "Road & Tolls", 0),
+	("Parking", "ማቆሚያ", "Road & Tolls", 0),
+	("Loading Fee", "የመጫኛ ክፍያ", "Loading & Unloading", 0),
+	("Unloading Fee", "የማራገፊያ ክፍያ", "Loading & Unloading", 0),
+	("Customs & Documentation", "ጉምሩክና ሰነድ", "Customs & Border", 0),
+	("Border Fee", "የድንበር ክፍያ", "Customs & Border", 0),
+	("Food & Accommodation", "ምግብና መኝታ", "Food & Accommodation", 0),
+	("Truck Repair", "ጥገና", "Maintenance", 0),
+	("Tyre", "ጎማ", "Maintenance", 0),
+	("Other", "ሌላ", "Other", 0),
+]
+
+
+def ensure_expense_types():
+	"""Create the default expense types if they are missing (safe to run many times)."""
+	for name, amharic, category, is_fuel in EXPENSE_TYPES:
+		if not frappe.db.exists("Trip Expense Type", name):
+			frappe.get_doc(
+				{
+					"doctype": "Trip Expense Type",
+					"expense_type_name": name,
+					"amharic_name": amharic,
+					"category": category,
+					"is_fuel": is_fuel,
+				}
+			).insert(ignore_permissions=True)

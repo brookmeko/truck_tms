@@ -21,10 +21,13 @@
   "company",
   "section_loads",
   "loads",
+  "section_expenses",
+  "expenses",
   "section_costs",
   "fuel_litres",
   "fuel_cost",
   "road_expenses",
+  "rejected_expenses",
   "column_break_allowance",
   "allowance_base",
   "extra_days",
@@ -170,6 +173,18 @@
    "reqd": 1
   },
   {
+   "fieldname": "section_expenses",
+   "fieldtype": "Section Break",
+   "label": "Driver Expenses (from the expense form)",
+   "description": "Enter every line of the driver's expense form with its receipt. Fuel, road and other totals are calculated from this list."
+  },
+  {
+   "fieldname": "expenses",
+   "fieldtype": "Table",
+   "label": "Expenses",
+   "options": "Trip Expense"
+  },
+  {
    "fieldname": "section_costs",
    "fieldtype": "Section Break",
    "label": "Trip Costs"
@@ -178,18 +193,30 @@
    "fieldname": "fuel_litres",
    "fieldtype": "Float",
    "label": "Fuel (Litres)",
-   "precision": "2"
+   "precision": "2",
+   "read_only": 1,
+   "description": "From the expenses table"
   },
   {
    "fieldname": "fuel_cost",
    "fieldtype": "Currency",
-   "label": "Fuel Cost"
+   "label": "Fuel Cost",
+   "read_only": 1,
+   "description": "Accepted fuel lines"
   },
   {
    "fieldname": "road_expenses",
    "fieldtype": "Currency",
-   "label": "Road Expenses",
-   "description": "የተለያዩ የመንገድ ወጪዎች"
+   "label": "Other Expenses",
+   "description": "Accepted non-fuel lines (tolls, loading, customs, food...)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "rejected_expenses",
+   "fieldtype": "Currency",
+   "label": "Rejected Expenses",
+   "read_only": 1,
+   "description": "Lines the accountant did not accept (not paid to the driver)"
   },
   {
    "fieldname": "column_break_allowance",
@@ -292,7 +319,8 @@
    "label": "Receipts Checked by Accountant",
    "allow_on_submit": 1,
    "no_copy": 1,
-   "description": "Tick after checking the driver's fuel and road receipts. Required before the settlement entry."
+   "description": "Accountant only: tick after checking every receipt line",
+   "permlevel": 1
   },
   {
    "fieldname": "receipts_verified_by",
@@ -370,7 +398,7 @@
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2026-11-12 21:00:00.000000",
+ "modified": "2026-11-13 23:00:00.000000",
  "modified_by": "Administrator",
  "module": "Truck TMS",
  "name": "Trip",
@@ -427,6 +455,30 @@
    "email": 1,
    "share": 1,
    "write": 1
+  },
+  {
+   "role": "System Manager",
+   "permlevel": 1,
+   "read": 1,
+   "write": 1
+  },
+  {
+   "role": "Transport Manager",
+   "permlevel": 1,
+   "read": 1,
+   "write": 1
+  },
+  {
+   "role": "Transport Finance",
+   "permlevel": 1,
+   "read": 1,
+   "write": 1
+  },
+  {
+   "role": "Transport Dispatcher",
+   "permlevel": 1,
+   "read": 1,
+   "write": 0
   }
  ],
  "row_format": "Dynamic",

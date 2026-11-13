@@ -36,9 +36,29 @@ class Trip(Document):
 		self.set_current_stage()
 		self.set_board_column()
 		self.set_receipts_verified_by()
+		self.validate_expense_lock()
 
 	def before_update_after_submit(self):
 		self.set_receipts_verified_by()
+
+	def validate_expense_lock(self):
+		"""The dispatcher types in the driver's expense form. Once the accountant has
+		ticked Receipts Checked, only finance can change the lines."""
+		before = self.get_doc_before_save()
+		if not before or not before.receipts_verified or can_check_receipts():
+			return
+
+		def lines(doc):
+			return [
+				(r.date and str(r.date), r.expense_type, flt(r.litres), flt(r.amount), r.receipt_no, r.receipt)
+				for r in doc.expenses
+			]
+
+		if lines(before) != lines(self):
+			frappe.throw(
+				_("Receipts are already checked by finance. Ask the accountant to untick Receipts Checked before changing expenses."),
+				title=_("Expenses locked"),
+			)
 
 	def set_receipts_verified_by(self):
 		self.receipts_verified_by = (self.receipts_verified_by or frappe.session.user) if self.receipts_verified else None
@@ -199,12 +219,28 @@ class Trip(Document):
 		Total cost = fuel + road expenses + allowance.
 		Settlement: compare total cost with the advance given to the driver."""
 		self.advance_given = sum(flt(row.amount) for row in self.advances)
+		self.calculate_expense_totals()
 		self.allowance = flt(self.allowance_base) + flt(self.extra_days) * flt(self.allowance_per_extra_day)
 		self.total_cost = flt(self.fuel_cost) + flt(self.road_expenses) + flt(self.allowance)
 		# Deductions are money the driver owes, so they reduce what the office pays him.
 		difference = flt(self.total_cost) - flt(self.advance_given) - flt(self.deduction_total)
 		self.refund_to_driver = difference if difference > 0 else 0
 		self.refund_to_office = -difference if difference < 0 else 0
+
+	def calculate_expense_totals(self):
+		"""Totals from the driver's expense form. Rejected lines are not paid to the driver."""
+		for row in self.expenses:
+			# fetched fields are filled after validate, so read the flag here
+			row.is_fuel = frappe.get_cached_value("Trip Expense Type", row.expense_type, "is_fuel") or 0
+			if not row.is_fuel:
+				row.litres = 0
+			if flt(row.amount) <= 0:
+				frappe.throw(_("Expenses row {0}: amount must be greater than zero").format(row.idx))
+		accepted = [row for row in self.expenses if not row.rejected]
+		self.fuel_cost = sum(flt(r.amount) for r in accepted if r.is_fuel)
+		self.fuel_litres = sum(flt(r.litres) for r in accepted if r.is_fuel)
+		self.road_expenses = sum(flt(r.amount) for r in accepted if not r.is_fuel)
+		self.rejected_expenses = sum(flt(r.amount) for r in self.expenses if r.rejected)
 
 	def calculate_summary(self):
 		self.total_revenue = sum(flt(load.revenue) for load in self.loads)
@@ -261,3 +297,11 @@ class Trip(Document):
 def get_vehicle_driver(vehicle):
 	"""Called from the form when the truck is chosen."""
 	return get_current_driver(vehicle)
+
+
+FINANCE_ROLES = {"Transport Finance", "Transport Manager", "System Manager"}
+
+
+def can_check_receipts(user=None):
+	user = user or frappe.session.user
+	return user == "Administrator" or bool(FINANCE_ROLES & set(frappe.get_roles(user)))

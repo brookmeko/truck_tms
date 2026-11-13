@@ -1,0 +1,118 @@
+{
+ "actions": [],
+ "creation": "2026-11-13 22:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "date",
+  "expense_type",
+  "is_fuel",
+  "location",
+  "litres",
+  "amount",
+  "column_break_r",
+  "has_receipt",
+  "receipt_no",
+  "receipt",
+  "rejected",
+  "remark"
+ ],
+ "fields": [
+  {
+   "fieldname": "date",
+   "fieldtype": "Date",
+   "label": "Date",
+   "default": "Today",
+   "in_list_view": 1,
+   "columns": 1
+  },
+  {
+   "fieldname": "expense_type",
+   "fieldtype": "Link",
+   "label": "Expense",
+   "options": "Trip Expense Type",
+   "reqd": 1,
+   "in_list_view": 1,
+   "columns": 2
+  },
+  {
+   "fieldname": "is_fuel",
+   "fieldtype": "Check",
+   "label": "Is Fuel",
+   "fetch_from": "expense_type.is_fuel",
+   "read_only": 1
+  },
+  {
+   "fieldname": "location",
+   "fieldtype": "Link",
+   "label": "Where",
+   "options": "Transport Location",
+   "in_list_view": 1,
+   "columns": 2
+  },
+  {
+   "fieldname": "litres",
+   "fieldtype": "Float",
+   "label": "Litres",
+   "precision": "2",
+   "depends_on": "is_fuel",
+   "in_list_view": 1,
+   "columns": 1
+  },
+  {
+   "fieldname": "amount",
+   "fieldtype": "Currency",
+   "label": "Amount",
+   "reqd": 1,
+   "in_list_view": 1,
+   "columns": 1
+  },
+  {
+   "fieldname": "column_break_r",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "has_receipt",
+   "fieldtype": "Check",
+   "label": "Has Receipt",
+   "default": "1",
+   "in_list_view": 1,
+   "columns": 1
+  },
+  {
+   "fieldname": "receipt_no",
+   "fieldtype": "Data",
+   "label": "Receipt No"
+  },
+  {
+   "fieldname": "receipt",
+   "fieldtype": "Attach",
+   "label": "Receipt Photo / Scan"
+  },
+  {
+   "fieldname": "rejected",
+   "fieldtype": "Check",
+   "label": "Rejected",
+   "in_list_view": 1,
+   "columns": 1,
+   "description": "Accountant only: receipt missing or not valid, not paid to the driver",
+   "permlevel": 1
+  },
+  {
+   "fieldname": "remark",
+   "fieldtype": "Data",
+   "label": "Remark"
+  }
+ ],
+ "istable": 1,
+ "links": [],
+ "modified": "2026-11-13 23:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Truck TMS",
+ "name": "Trip Expense",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "states": []
+}

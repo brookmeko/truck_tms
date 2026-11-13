@@ -98,6 +98,9 @@ def after_install():
 
 	setup_roles()
 	ensure_transport_accounts()
+	from truck_tms.setup.seed import ensure_expense_types
+
+	ensure_expense_types()
 
 
 def after_migrate():
@@ -108,6 +111,9 @@ def after_migrate():
 
 	setup_roles()
 	ensure_transport_accounts()
+	from truck_tms.setup.seed import ensure_expense_types
+
+	ensure_expense_types()
 	from truck_tms.setup.vehicle import ensure_vehicle_cost_centers
 
 	ensure_vehicle_cost_centers()

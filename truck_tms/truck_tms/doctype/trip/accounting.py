@@ -63,11 +63,7 @@ def make_settlement_entry(trip):
 	cost_center = frappe.db.get_value("Vehicle", doc.vehicle, "cost_center")
 
 	je = new_journal_entry(doc, _("Trip settlement {0} ({1})").format(doc.name, doc.driver_name))
-	for account, amount in (
-		(s.fuel_expense_account, doc.fuel_cost),
-		(s.road_expense_account, doc.road_expenses),
-		(s.allowance_expense_account, doc.allowance),
-	):
+	for account, amount in expense_totals_by_account(doc, s).items():
 		if flt(amount):
 			je.append(
 				"accounts", {"account": account, "debit_in_account_currency": flt(amount), "cost_center": cost_center}
@@ -90,6 +86,24 @@ def make_settlement_entry(trip):
 	je.insert()
 	doc.db_set("settlement_journal_entry", je.name)
 	return je.name
+
+
+def expense_totals_by_account(doc, settings):
+	"""Accepted expense lines grouped by account, plus the allowance.
+	Each expense type can have its own account; otherwise fuel -> Fuel Expense,
+	everything else -> Road Expenses (Transport Settings)."""
+	totals = {}
+	for row in doc.expenses:
+		if row.rejected:
+			continue
+		account = frappe.db.get_value("Trip Expense Type", row.expense_type, "expense_account") or (
+			settings.fuel_expense_account if row.is_fuel else settings.road_expense_account
+		)
+		totals[account] = totals.get(account, 0) + flt(row.amount)
+	if flt(doc.allowance):
+		account = settings.allowance_expense_account
+		totals[account] = totals.get(account, 0) + flt(doc.allowance)
+	return totals
 
 
 def new_journal_entry(trip, remark, posting_date=None, reference=None):

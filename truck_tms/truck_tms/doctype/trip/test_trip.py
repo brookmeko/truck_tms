@@ -11,7 +11,7 @@ from truck_tms.truck_tms.doctype.vehicle_driver_assignment.test_vehicle_driver_a
 )
 
 EXTRA_TEST_RECORD_DEPENDENCIES = []
-IGNORE_TEST_RECORD_DEPENDENCIES = ["Vehicle", "Driver", "Customer", "Company", "Sales Invoice", "Item", "Cost Center", "Journal Entry", "Account"]
+IGNORE_TEST_RECORD_DEPENDENCIES = ["Vehicle", "Driver", "Customer", "Company", "Sales Invoice", "Item", "Cost Center", "Journal Entry", "Account", "Trip Expense Type", "User"]
 
 
 def make_location(name, location_type):
@@ -19,6 +19,15 @@ def make_location(name, location_type):
 		frappe.get_doc(
 			{"doctype": "Transport Location", "location_name": name, "location_type": location_type}
 		).insert()
+	return name
+
+
+def make_expense_type(name, is_fuel=0, expense_account=None):
+	if not frappe.db.exists("Trip Expense Type", name):
+		frappe.get_doc(
+			{"doctype": "Trip Expense Type", "expense_type_name": name, "category": "Fuel" if is_fuel else "Other", "is_fuel": is_fuel}
+		).insert()
+	frappe.db.set_value("Trip Expense Type", name, "expense_account", expense_account)
 	return name
 
 
@@ -41,6 +50,9 @@ class IntegrationTestTrip(IntegrationTestCase):
 		self.empty = make_cargo("Test Empty", empty=1)
 		self.raw = make_cargo("Test Raw Material")
 		self.company = frappe.db.get_value("Company", {}, "name")
+		self.fuel_type = make_expense_type("Test Fuel", is_fuel=1)
+		self.toll_type = make_expense_type("Test Road Toll")
+		self.loading_type = make_expense_type("Test Loading Fee")
 
 	def tearDown(self):
 		frappe.db.rollback()
@@ -66,9 +78,13 @@ class IntegrationTestTrip(IntegrationTestCase):
 					},
 				],
 				# Real row from the April 2016 E.C. settlement sheet (Seid Awel, 3-A17484)
-				"fuel_litres": 1000,
-				"fuel_cost": 77440,
-				"road_expenses": 26220,
+				# The driver's expense form: fuel 77,440 (1,000 L) + other expenses 26,220
+				"expenses": [
+					{"date": "2026-03-01", "expense_type": self.fuel_type, "litres": 600, "amount": 46464, "receipt_no": "F-1"},
+					{"date": "2026-03-04", "expense_type": self.fuel_type, "litres": 400, "amount": 30976, "receipt_no": "F-2"},
+					{"date": "2026-03-02", "expense_type": self.toll_type, "amount": 20000, "receipt_no": "T-1"},
+					{"date": "2026-03-05", "expense_type": self.loading_type, "amount": 6220, "receipt_no": "L-1"},
+				],
 				"allowance_base": 15000,
 				"extra_days": 6,
 				"allowance_per_extra_day": 500,
@@ -96,6 +112,70 @@ class IntegrationTestTrip(IntegrationTestCase):
 		self.assertEqual(trip.refund_to_driver, 3660)  # 121660 - 118000
 		self.assertEqual(trip.refund_to_office, 0)
 		self.assertEqual(trip.net_income, 192340)  # 314000 - 121660
+
+	def test_expense_form_totals(self):
+		trip = self.make_trip()
+		self.assertEqual(trip.fuel_cost, 77440)
+		self.assertEqual(trip.fuel_litres, 1000)
+		self.assertEqual(trip.road_expenses, 26220)
+		self.assertEqual(trip.rejected_expenses, 0)
+
+	def test_rejected_expense_is_not_paid(self):
+		trip = self.make_trip()
+		trip.expenses[3].rejected = 1  # no valid receipt for the 6,220 loading fee
+		trip.save()
+		self.assertEqual(trip.road_expenses, 20000)
+		self.assertEqual(trip.rejected_expenses, 6220)
+		self.assertEqual(trip.total_cost, 115440)  # 77440 + 20000 + 18000
+		self.assertEqual(trip.refund_to_driver, 0)
+		self.assertEqual(trip.refund_to_office, 2560)  # 118000 - 115440: driver returns money
+
+	def test_expense_amount_must_be_positive(self):
+		trip = self.make_trip()
+		trip.expenses[0].amount = 0
+		with self.assertRaises(frappe.ValidationError):
+			trip.save()
+
+	def make_user(self, email, role):
+		if not frappe.db.exists("User", email):
+			frappe.get_doc(
+				{"doctype": "User", "email": email, "first_name": role, "send_welcome_email": 0, "roles": [{"role": role}]}
+			).insert(ignore_permissions=True)
+		return email
+
+	def test_dispatcher_enters_expenses_but_cannot_check_receipts(self):
+		dispatcher = self.make_user("test-dispatcher@truck-tms.test", "Transport Dispatcher")
+		accountant = self.make_user("test-accountant@truck-tms.test", "Transport Finance")
+		trip = self.make_trip()
+		try:
+			# Dispatcher adds a line and tries to tick finance-only boxes: they are ignored
+			frappe.set_user(dispatcher)
+			trip = frappe.get_doc("Trip", trip.name)
+			trip.append("expenses", {"date": "2026-03-06", "expense_type": self.toll_type, "amount": 1000})
+			trip.expenses[0].rejected = 1
+			trip.receipts_verified = 1
+			trip.save()
+			self.assertEqual(trip.road_expenses, 27220)  # new line counted
+			self.assertEqual(trip.rejected_expenses, 0)
+			self.assertFalse(frappe.db.get_value("Trip", trip.name, "receipts_verified"))
+
+			# Accountant rejects a line and checks the receipts
+			frappe.set_user(accountant)
+			trip = frappe.get_doc("Trip", trip.name)
+			trip.expenses[4].rejected = 1
+			trip.receipts_verified = 1
+			trip.save()
+			self.assertEqual(trip.rejected_expenses, 1000)
+			self.assertEqual(trip.receipts_verified_by, accountant)
+
+			# Now the dispatcher cannot change the lines any more
+			frappe.set_user(dispatcher)
+			trip = frappe.get_doc("Trip", trip.name)
+			trip.expenses[0].amount = 50000
+			with self.assertRaises(frappe.ValidationError):
+				trip.save()
+		finally:
+			frappe.set_user("Administrator")
 
 	def test_internal_job_has_no_revenue(self):
 		trip = self.make_trip()
@@ -215,11 +295,18 @@ class IntegrationTestTrip(IntegrationTestCase):
 		trip.save()
 		self.assertEqual(trip.receipts_verified_by, frappe.session.user)
 
+		# Loading fees go to their own account (set on the expense type)
+		from truck_tms.setup.accounts import get_or_create_account
+
+		loading_account = get_or_create_account(trip.company, "Test Loading Expense", "Expense", "", "Direct Expenses")
+		make_expense_type(self.loading_type, expense_account=loading_account)
+
 		je = frappe.get_doc("Journal Entry", make_settlement_entry(trip.name))
 		debit = {a.account: a.debit for a in je.accounts if a.debit}
 		credit = {a.account: a.credit for a in je.accounts if a.credit}
 		self.assertEqual(debit[s.fuel_expense_account], 77440)
-		self.assertEqual(debit[s.road_expense_account], 26220)
+		self.assertEqual(debit[s.road_expense_account], 20000)
+		self.assertEqual(debit[loading_account], 6220)
 		self.assertEqual(debit[s.allowance_expense_account], 18000)
 		self.assertEqual(credit[s.driver_advance_account], 118000)  # advance cleared
 		self.assertEqual(credit[s.bank_account], 3660)  # bank refunds the driver
