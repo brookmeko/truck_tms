@@ -299,3 +299,6 @@ scheduler_events = {
 		"0 8 * * *": ["truck_tms.reminders.send_daily_reminders"],
 	},
 }
+
+# Office staff see only Truck TMS on the apps screen (admins still see every app)
+before_request = ["truck_tms.setup.app_access.hide_other_apps"]

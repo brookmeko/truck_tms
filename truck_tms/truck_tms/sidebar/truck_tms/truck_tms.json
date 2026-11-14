@@ -2,7 +2,7 @@
  "creation": "2026-11-11 01:00:00.000000",
  "docstatus": 0,
  "doctype": "Sidebar",
- "modified": "2026-11-13 22:30:00.000000",
+ "modified": "2026-11-14 20:30:00.000000",
  "modified_by": "Administrator",
  "owner": "Administrator",
  "name": "Truck TMS",
@@ -233,6 +233,32 @@
    "open_in_new_tab": 0,
    "link_type": "Report",
    "link_to": "Accounts Receivable"
+  },
+  {
+   "type": "Link",
+   "label": "Journal Entry",
+   "child": 1,
+   "indent": 0,
+   "collapsible": 1,
+   "keep_closed": 0,
+   "show_arrow": 0,
+   "open_in_new_tab": 0,
+   "link_type": "DocType",
+   "link_to": "Journal Entry",
+   "icon": "notebook-pen"
+  },
+  {
+   "type": "Link",
+   "label": "General Ledger",
+   "child": 1,
+   "indent": 0,
+   "collapsible": 1,
+   "keep_closed": 0,
+   "show_arrow": 0,
+   "open_in_new_tab": 0,
+   "link_type": "Report",
+   "link_to": "General Ledger",
+   "icon": "book-open"
   },
   {
    "type": "Section Break",

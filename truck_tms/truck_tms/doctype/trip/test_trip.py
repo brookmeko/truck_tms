@@ -177,6 +177,23 @@ class IntegrationTestTrip(IntegrationTestCase):
 		finally:
 			frappe.set_user("Administrator")
 
+	def test_staff_see_only_truck_tms_app(self):
+		from frappe.apps import get_apps
+
+		from truck_tms.setup.app_access import hide_other_apps
+
+		hide_other_apps()
+		import inspect
+
+		get_apps = inspect.unwrap(get_apps)  # skip the per-request cache: we switch users here
+		dispatcher = self.make_user("test-dispatcher@truck-tms.test", "Transport Dispatcher")
+		try:
+			frappe.set_user(dispatcher)
+			self.assertEqual([a["name"] for a in get_apps()], ["truck_tms"])
+		finally:
+			frappe.set_user("Administrator")
+		self.assertIn("erpnext", [a["name"] for a in get_apps()])  # admin still sees ERPNext
+
 	def test_internal_job_has_no_revenue(self):
 		trip = self.make_trip()
 		trip.loads[1].is_internal_job = 1

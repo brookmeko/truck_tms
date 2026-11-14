@@ -117,6 +117,10 @@ def after_migrate():
 	from truck_tms.setup.vehicle import ensure_vehicle_cost_centers
 
 	ensure_vehicle_cost_centers()
+	from truck_tms.setup.app_access import restrict_other_desktop_icons, set_default_app
+
+	restrict_other_desktop_icons()
+	set_default_app()
 
 
 def ensure_erpnext_contact_fields():
